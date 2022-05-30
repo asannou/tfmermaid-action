@@ -17,11 +17,14 @@ Convert the output of `terraform graph` to Mermaid's syntax and embed it in the 
     file: README.md
 - name: commit
   run: |
-    git config user.name "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
     git add README.md
-    git commit -m "generated"
-    git push
+    if ! git diff --cached --quiet --exit-code
+    then
+      git config user.name "github-actions[bot]"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git commit -m "generated"
+      git push
+    fi
 ```
 
 ### README.md
