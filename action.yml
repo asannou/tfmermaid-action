@@ -1,0 +1,58 @@
+name: tfmermaid
+author: asannou
+description: Convert an output of Terraform graph to Mermaid's syntax.
+inputs:
+  file:
+    description: |
+      Name of the file in which the converted output is embedded. This file must contain the following target code blocks:
+      ~~~
+      ```mermaid
+      %%tfmermaid
+      ```
+      ~~~
+    default: README.md
+  label:
+    description: |
+      Label to identify the target code block, for example:
+      ~~~
+      ```mermaid
+      %%tfmermaid:label
+      ```
+      ~~~
+    default: ""
+  orientation:
+    description: See [Flowchart Orientation](https://mermaid-js.github.io/mermaid/#/flowchart?id=flowchart-orientation).
+    default: LR
+  arrow-direction:
+    description: Direction of arrows, e.g. `forward` or `reverse`.
+    default: reverse
+  arrow-length:
+    description: Length of arrows linked to `var` or `output`.
+    default: 2
+  include:
+    description: Comma-separated names of included types, e.g. `provider`.
+    default: ""
+  exclude:
+    description: Comma-separated names of excluded types, e.g. `var,local,output,data`.
+    default: ""
+  working-directory:
+    description: Working directory.
+    default: ./
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_wrapper: false
+    - run: ${{ github.action_path }}/convert.sh ${{ inputs.file }} ${{ inputs.label }}
+      env:
+        ORIENTATION: ${{ inputs.orientation }}
+        ARROW_DIRECTION: ${{ inputs.arrow-direction }}
+        ARROW_LENGTH: ${{ inputs.arrow-length }}
+        INCLUDE: ${{ inputs.include }}
+        EXCLUDE: ${{ inputs.exclude }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}

@@ -1,0 +1,131 @@
+name: tfmermaid example
+on:
+  push:
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    env:
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          repository: hashicorp/terraform-provider-aws
+          path: terraform-provider-aws
+      - uses: actions/checkout@v3
+        with:
+          repository: hashicorp/terraform-provider-google
+          path: terraform-provider-google
+      - uses: actions/checkout@v3
+        with:
+          repository: hashicorp/terraform-provider-azurerm
+          path: terraform-provider-azurerm
+      - run: mkdir -p $TF_PLUGIN_CACHE_DIR
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/two-tier
+          working-directory: ./terraform-provider-aws/examples/two-tier
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/ecs-alb
+          exclude: var,output
+          working-directory: ./terraform-provider-aws/examples/ecs-alb
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/events/kinesis
+          orientation: RL
+          arrow-direction: forward
+          working-directory: ./terraform-provider-aws/examples/events/kinesis
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/lambda-file-systems
+          exclude: var
+          working-directory: ./terraform-provider-aws/examples/lambda-file-systems
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/networking
+          working-directory: ./terraform-provider-aws/examples/networking
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/rds
+          working-directory: ./terraform-provider-aws/examples/rds
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/s3-api-gateway-integration
+          exclude: var
+          working-directory: ./terraform-provider-aws/examples/s3-api-gateway-integration
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/s3-cross-account-access
+          include: provider
+          working-directory: ./terraform-provider-aws/examples/s3-cross-account-access
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/sagemaker
+          working-directory: ./terraform-provider-aws/examples/sagemaker
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/transit-gateway-cross-account-peering-attachment
+          include: provider
+          working-directory: ./terraform-provider-aws/examples/transit-gateway-cross-account-peering-attachment
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-aws/examples/workspaces
+          exclude: var
+          working-directory: ./terraform-provider-aws/examples/workspaces
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-google/examples/cloud-armor
+          include: provider
+          working-directory: ./terraform-provider-google/examples/cloud-armor
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-google/examples/content-based-load-balancing
+          orientation: TB
+          include: provider
+          working-directory: ./terraform-provider-google/examples/content-based-load-balancing
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-google/examples/endpoints-on-compute-engine
+          include: provider
+          working-directory: ./terraform-provider-google/examples/endpoints-on-compute-engine
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-azurerm/examples/api-management
+          orientation: TB
+          working-directory: ./terraform-provider-azurerm/examples/api-management
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-azurerm/examples/recovery-services/virtual-machine
+          working-directory: ./terraform-provider-azurerm/examples/recovery-services/virtual-machine
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
+          working-directory: ./terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
+      - run: sudo apt install graphviz
+      - run: terraform graph | dot -Tsvg > ../../../graph.svg
+        working-directory: ./terraform-provider-aws/examples/two-tier
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md graph.svg
+          git commit -m "generated" -m "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          git push
