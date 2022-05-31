@@ -1,6 +1,9 @@
 name: tfmermaid
 author: asannou
 description: Convert an output of Terraform graph to Mermaid's syntax.
+branding:
+  icon: filter
+  color: purple
 inputs:
   file:
     description: |
