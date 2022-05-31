@@ -1371,17 +1371,17 @@ subgraph "n6"["module.region1"]
 subgraph "n6_padding"[" "]
 subgraph "n7"["Load Balancer"]
 n8["azurerm_lb.example"]:::r
-n9["azurerm_lb_probe.example"]:::r
-na["azurerm_lb_rule.example"]:::r
+n9["azurerm_lb_backend_address_pool.<br/>example"]:::r
+na["azurerm_lb_probe.example"]:::r
+nb["azurerm_lb_rule.example"]:::r
 end
 class n7 cs
-subgraph "nb"["Network"]
-nc["azurerm_lb_backend_address_pool.<br/>example"]:::r
+subgraph "nc"["Network"]
 nd["azurerm_public_ip.example"]:::r
 ne["azurerm_subnet.example"]:::r
 nf["azurerm_virtual_network.<br/>example"]:::r
 end
-class nb cs
+class nc cs
 subgraph "ng"["Base"]
 nh["azurerm_resource_group.<br/>example"]:::r
 end
@@ -1408,17 +1408,17 @@ subgraph "nq"["module.region2"]
 subgraph "nq_padding"[" "]
 subgraph "nr"["Load Balancer"]
 ns["azurerm_lb.example"]:::r
-nt["azurerm_lb_probe.example"]:::r
-nu["azurerm_lb_rule.example"]:::r
+nt["azurerm_lb_backend_address_pool.<br/>example"]:::r
+nu["azurerm_lb_probe.example"]:::r
+nv["azurerm_lb_rule.example"]:::r
 end
 class nr cs
-subgraph "nv"["Network"]
-nw["azurerm_lb_backend_address_pool.<br/>example"]:::r
+subgraph "nw"["Network"]
 nx["azurerm_public_ip.example"]:::r
 ny["azurerm_subnet.example"]:::r
 nz["azurerm_virtual_network.<br/>example"]:::r
 end
-class nv cs
+class nw cs
 subgraph "n10"["Base"]
 n11["azurerm_resource_group.<br/>example"]:::r
 end
@@ -1456,30 +1456,30 @@ n15-->n4
 n1-->n5
 nd-->n8
 nm-->n8
-n8-->nc
 n8-->n9
-nc-->na
-n9-->na
+n8-->na
+n9-->nb
+na-->nb
 nh-->nd
 no-->nh
 np-->nh
 nf-->ne
-nc-->nj
+n9-->nj
 ne-->nj
 nh-->nf
 n1c--->no
 n1d--->np
 nx-->ns
 n16-->ns
-ns-->nw
 ns-->nt
-nw-->nu
-nt-->nu
+ns-->nu
+nt-->nv
+nu-->nv
 n11-->nx
 n18-->n11
 n19-->n11
 nz-->ny
-nw-->n13
+nt-->n13
 ny-->n13
 n11-->nz
 n1b--->n18
