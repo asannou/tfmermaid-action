@@ -1,6 +1,8 @@
 name: tfmermaid example
 on:
   push:
+    branches:
+      - master
 jobs:
   example:
     runs-on: ubuntu-latest

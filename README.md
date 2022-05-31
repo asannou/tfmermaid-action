@@ -12,7 +12,7 @@ Convert the output of `terraform graph` to Mermaid's syntax and embed it in the 
 
 ```yaml
 - uses: actions/checkout@v3
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     file: README.md
 - name: commit
@@ -105,7 +105,7 @@ n1--->nd
 ### [terraform-provider-aws/examples/ecs-alb](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/ecs-alb)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     exclude: var,output
 ```
@@ -200,7 +200,7 @@ nu-->nq
 ### [terraform-provider-aws/examples/events/kinesis](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/events/kinesis)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     orientation: RL
     arrow-direction: forward
@@ -258,7 +258,7 @@ na--->n1
 ### [terraform-provider-aws/examples/lambda-file-systems](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/lambda-file-systems)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     exclude: var
 ```
@@ -669,7 +669,7 @@ n2--->na
 ### [terraform-provider-aws/examples/s3-api-gateway-integration](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/s3-api-gateway-integration)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     exclude: var
 ```
@@ -725,7 +725,7 @@ nf-->ng
 ### [terraform-provider-aws/examples/s3-cross-account-access](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/s3-cross-account-access)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     include: provider
 ```
@@ -840,7 +840,7 @@ n7-->n5
 ### [terraform-provider-aws/examples/transit-gateway-cross-account-peering-attachment](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/transit-gateway-cross-account-peering-attachment)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     include: provider
 ```
@@ -897,7 +897,7 @@ nf--->n8
 ### [terraform-provider-aws/examples/workspaces](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/workspaces)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     exclude: var
 ```
@@ -963,7 +963,7 @@ ni-->nh
 ### [terraform-provider-google/examples/cloud-armor](https://github.com/hashicorp/terraform-provider-google/tree/main/examples/cloud-armor)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     include: provider
 ```
@@ -1036,7 +1036,7 @@ ne-->nf
 ### [terraform-provider-google/examples/content-based-load-balancing](https://github.com/hashicorp/terraform-provider-google/tree/main/examples/content-based-load-balancing)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     orientation: TB
     include: provider
@@ -1107,7 +1107,7 @@ nk--->nf
 ### [terraform-provider-google/examples/endpoints-on-compute-engine](https://github.com/hashicorp/terraform-provider-google/tree/main/examples/endpoints-on-compute-engine)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     include: provider
 ```
@@ -1176,7 +1176,7 @@ nd-->ne
 ### [terraform-provider-azurerm/examples/api-management](https://github.com/hashicorp/terraform-provider-azurerm/tree/main/examples/api-management)
 
 ```yaml
-- uses: asannou/tfmermaid-action@master
+- uses: asannou/tfmermaid-action@v1
   with:
     orientation: TB
 ```
