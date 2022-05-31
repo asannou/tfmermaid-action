@@ -21,7 +21,6 @@ class TerraformRegistry {
 
   canonicalizeType(type) {
     return type.
-      replace(/^data\./, '').
       replace(/^aws_alb$/, 'aws_lb').
       replace(/^aws_alb_/, 'aws_lb_');
   }
@@ -71,13 +70,15 @@ class TerraformRegistry {
     );
     for (const doc of docs.included) {
       const { attributes: { category, title, subcategory } } = doc;
+      let prefix = '';
       switch (category) {
-        case 'resources':
         case 'data-sources':
-          this.providers[name][title] = doc;
+          prefix = 'data.';
+        case 'resources':
+          this.providers[name][`${prefix}${title}`] = doc;
           const titles = title.split('_');
           if (titles[0] != name) titles.unshift(name);
-          this.categories[titles.join('_')] = subcategory;
+          this.categories[`${prefix}${titles.join('_')}`] = subcategory;
       }
     }
   }
