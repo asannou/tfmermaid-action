@@ -227,33 +227,32 @@ n4["aws_iam_role.role"]:::r
 n5["aws_iam_role_policy.policy"]:::r
 end
 class n3 cs
-subgraph "n6"["Kinesis"]
-n7["aws_kinesis_stream.foo"]:::r
+subgraph "n6"["Input Variables"]
+n7(["var.rule_name"]):::v
+n8(["var.target_name"]):::v
+n9(["var.iam_role_name"]):::v
+na(["var.stream_name"]):::v
 end
-class n6 cs
-subgraph "n8"["Output Values"]
-n9(["output.kinesis_stream_arn"]):::v
-na(["output.rule_arn"]):::v
+class n6 vs
+subgraph "nb"["Kinesis"]
+nc["aws_kinesis_stream.foo"]:::r
 end
-class n8 vs
-subgraph "nb"["Input Variables"]
-nc(["var.aws_region"]):::v
-nd(["var.iam_role_name"]):::v
-ne(["var.rule_name"]):::v
-nf(["var.stream_name"]):::v
-ng(["var.target_name"]):::v
+class nb cs
+subgraph "nd"["Output Values"]
+ne(["output.kinesis_stream_arn"]):::v
+nf(["output.rule_arn"]):::v
 end
-class nb vs
+class nd vs
 n1-->n4
-n1--->ne
+n1--->n7
 n2-->n1
-n2-->n7
-n2--->ng
-n4--->nd
+n2-->nc
+n2--->n8
+n4--->n9
 n5-->n4
-n7--->nf
-n9--->n7
-na--->n1
+nc--->na
+ne--->nc
+nf--->n1
 ```
 
 ### [terraform-provider-aws/examples/lambda-file-systems](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/lambda-file-systems)
@@ -276,36 +275,36 @@ classDef ps fill:none,stroke:none
 classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
 subgraph "n0"["VPC (Virtual Private Cloud)"]
 n1["aws_default_security_group.<br/>default"]:::r
-n2["aws_default_subnet.<br/>default_az1"]:::r
-n3["aws_default_subnet.<br/>default_az2"]:::r
-n4["aws_default_vpc.default"]:::r
+n2["aws_default_vpc.default"]:::r
+n3["aws_default_subnet.<br/>default_az1"]:::r
+n4["aws_default_subnet.<br/>default_az2"]:::r
 end
 class n0 cs
-subgraph "n5"["EFS (Elastic File System)"]
-n6["aws_efs_access_point.<br/>access_point_lambda"]:::r
-n7["aws_efs_file_system.<br/>efs_for_lambda"]:::r
-n8["aws_efs_mount_target.<br/>mount_target_az1"]:::r
-n9["aws_efs_mount_target.<br/>mount_target_az2"]:::r
+subgraph "n5"["EC2 (Elastic Compute Cloud)"]
+n6{{"data.<br/>aws_availability_zones.<br/>available"}}:::r
 end
 class n5 cs
-subgraph "na"["IAM (Identity & Access Management)"]
-nb["aws_iam_role.<br/>iam_role_for_lambda"]:::r
-nc["aws_iam_role_policy_attachment.<br/>AWSLambdaVPCAccessExecutionRole-attach"]:::r
-nd["aws_iam_role_policy_attachment.<br/>AmazonElasticFileSystemClientFullAccess-attach"]:::r
-ne{{"data.<br/>aws_iam_policy.<br/>AWSLambdaVPCAccessExecutionRole"}}:::r
-nf{{"data.<br/>aws_iam_policy.<br/>AmazonElasticFileSystemClientFullAccess"}}:::r
-ng{{"data.<br/>aws_iam_policy_document.<br/>assume_role_policy"}}:::r
+subgraph "n7"["EFS (Elastic File System)"]
+n8["aws_efs_access_point.<br/>access_point_lambda"]:::r
+n9["aws_efs_file_system.<br/>efs_for_lambda"]:::r
+na["aws_efs_mount_target.<br/>mount_target_az1"]:::r
+nb["aws_efs_mount_target.<br/>mount_target_az2"]:::r
 end
-class na cs
-subgraph "nh"["Lambda"]
-ni["aws_lambda_function.<br/>example_lambda"]:::r
+class n7 cs
+subgraph "nc"["IAM (Identity & Access Management)"]
+nd["aws_iam_role.<br/>iam_role_for_lambda"]:::r
+ne{{"data.<br/>aws_iam_policy_document.<br/>assume_role_policy"}}:::r
+nf["aws_iam_role_policy_attachment.<br/>AWSLambdaVPCAccessExecutionRole-attach"]:::r
+ng{{"data.<br/>aws_iam_policy.<br/>AWSLambdaVPCAccessExecutionRole"}}:::r
+nh["aws_iam_role_policy_attachment.<br/>AmazonElasticFileSystemClientFullAccess-attach"]:::r
+ni{{"data.<br/>aws_iam_policy.<br/>AmazonElasticFileSystemClientFullAccess"}}:::r
 end
-class nh cs
-nj{{"data.archive_file.zip"}}:::r
-subgraph "nk"["EC2 (Elastic Compute Cloud)"]
-nl{{"data.<br/>aws_availability_zones.<br/>available"}}:::r
+class nc cs
+subgraph "nj"["Lambda"]
+nk["aws_lambda_function.<br/>example_lambda"]:::r
 end
-class nk cs
+class nj cs
+nl{{"data.archive_file.zip"}}:::r
 subgraph "nm"["Meta Data Sources"]
 nn{{"data.aws_partition.current"}}:::r
 end
@@ -314,29 +313,29 @@ subgraph "no"["Output Values"]
 np(["output.lambda"]):::v
 end
 class no vs
-n4-->n1
-nl-->n2
-nl-->n3
-n7-->n6
-n1-->n8
-n2-->n8
-n7-->n8
-n1-->n9
-n3-->n9
-n7-->n9
-ng-->nb
-nb-->nc
-ne-->nc
-nb-->nd
-nf-->nd
-n6-->ni
-n8-->ni
-n9-->ni
-nb-->ni
-nj-->ni
-nn-->ne
-nn-->nf
-ni--->np
+n2-->n1
+n6-->n3
+n6-->n4
+n9-->n8
+n1-->na
+n3-->na
+n9-->na
+n1-->nb
+n4-->nb
+n9-->nb
+ne-->nd
+nd-->nf
+ng-->nf
+nd-->nh
+ni-->nh
+n8-->nk
+na-->nk
+nb-->nk
+nd-->nk
+nl-->nk
+nn-->ng
+nn-->ni
+nk--->np
 ```
 
 ### [terraform-provider-aws/examples/networking](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/networking)
@@ -688,39 +687,39 @@ classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
 subgraph "n0"["API Gateway"]
 n1["aws_api_gateway_deployment.<br/>S3APIDeployment"]:::r
 n2["aws_api_gateway_integration.<br/>S3Integration"]:::r
-n3["aws_api_gateway_integration_response.<br/>IntegrationResponse200"]:::r
-n4["aws_api_gateway_integration_response.<br/>IntegrationResponse400"]:::r
-n5["aws_api_gateway_integration_response.<br/>IntegrationResponse500"]:::r
-n6["aws_api_gateway_method.<br/>GetBuckets"]:::r
-n7["aws_api_gateway_method_response.<br/>Status200"]:::r
-n8["aws_api_gateway_method_response.<br/>Status400"]:::r
+n3["aws_api_gateway_method.<br/>GetBuckets"]:::r
+n4["aws_api_gateway_integration_response.<br/>IntegrationResponse200"]:::r
+n5["aws_api_gateway_method_response.<br/>Status200"]:::r
+n6["aws_api_gateway_integration_response.<br/>IntegrationResponse400"]:::r
+n7["aws_api_gateway_method_response.<br/>Status400"]:::r
+n8["aws_api_gateway_integration_response.<br/>IntegrationResponse500"]:::r
 n9["aws_api_gateway_method_response.<br/>Status500"]:::r
-na["aws_api_gateway_resource.<br/>Folder"]:::r
-nb["aws_api_gateway_resource.Item"]:::r
-nc["aws_api_gateway_rest_api.MyS3"]:::r
+na["aws_api_gateway_rest_api.MyS3"]:::r
+nb["aws_api_gateway_resource.<br/>Folder"]:::r
+nc["aws_api_gateway_resource.Item"]:::r
 end
 class n0 cs
 subgraph "nd"["IAM (Identity & Access Management)"]
-ne["aws_iam_policy.s3_policy"]:::r
-nf["aws_iam_role.<br/>s3_api_gateway_role"]:::r
+ne["aws_iam_role.<br/>s3_api_gateway_role"]:::r
+nf["aws_iam_policy.s3_policy"]:::r
 ng["aws_iam_role_policy_attachment.<br/>s3_policy_attach"]:::r
 end
 class nd cs
 n2-->n1
-n6-->n2
-nf-->n2
-n2-->n3
-n7-->n3
-n8-->n4
-n9-->n5
-nc-->n6
-n6-->n7
-n2-->n8
+n3-->n2
+ne-->n2
+n2-->n4
+n5-->n4
+n7-->n6
+n9-->n8
+na-->n3
+n3-->n5
+n2-->n7
 n2-->n9
-nc-->na
 na-->nb
-ne-->ng
+nb-->nc
 nf-->ng
+ne-->ng
 ```
 
 ### [terraform-provider-aws/examples/s3-cross-account-access](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/s3-cross-account-access)
@@ -917,48 +916,48 @@ subgraph "n0"["DS (Directory Service)"]
 n1["aws_directory_service_directory.<br/>example"]:::r
 end
 class n0 cs
-subgraph "n2"["KMS (Key Management)"]
-n3["aws_kms_key.example"]:::r
+subgraph "n2"["VPC (Virtual Private Cloud)"]
+n3["aws_subnet.private-a"]:::r
+n4["aws_subnet.private-b"]:::r
+n5["aws_vpc.main"]:::r
 end
 class n2 cs
-subgraph "n4"["VPC (Virtual Private Cloud)"]
-n5["aws_subnet.private-a"]:::r
-n6["aws_subnet.private-b"]:::r
-n7["aws_vpc.main"]:::r
+subgraph "n6"["KMS (Key Management)"]
+n7["aws_kms_key.example"]:::r
 end
-class n4 cs
-subgraph "n8"["WorkSpaces"]
-n9["aws_workspaces_directory.<br/>example"]:::r
-na["aws_workspaces_ip_group.main"]:::r
-nb["aws_workspaces_workspace.<br/>example"]:::r
-nc{{"data.<br/>aws_workspaces_bundle.<br/>value_windows"}}:::r
+class n6 cs
+n8(["local.workspaces_az_ids"]):::v
+subgraph "n9"["WorkSpaces"]
+na["aws_workspaces_directory.<br/>example"]:::r
+nb["aws_workspaces_ip_group.main"]:::r
+nc["aws_workspaces_workspace.<br/>example"]:::r
+nd{{"data.<br/>aws_workspaces_bundle.<br/>value_windows"}}:::r
 end
-class n8 cs
-subgraph "nd"["EC2 (Elastic Compute Cloud)"]
-ne{{"data.<br/>aws_availability_zones.<br/>available"}}:::r
+class n9 cs
+subgraph "ne"["EC2 (Elastic Compute Cloud)"]
+nf{{"data.<br/>aws_availability_zones.<br/>available"}}:::r
 end
-class nd cs
-subgraph "nf"["Meta Data Sources"]
-ng{{"data.aws_region.current"}}:::r
+class ne cs
+subgraph "ng"["Meta Data Sources"]
+nh{{"data.aws_region.current"}}:::r
 end
-class nf cs
-nh(["local.workspaces_az_ids"]):::v
+class ng cs
 ni(["local.<br/>workspaces_az_id_strings"]):::v
 nj(["local.<br/>region_workspaces_az_id_strings"]):::v
-n5-->n1
-n6-->n1
-n7-->n5
-nh-->n5
-n7-->n6
-nh-->n6
-n1-->n9
-n3-->nb
-n9-->nb
-nc-->nb
-ne-->ni
-ng-->ni
+n3-->n1
+n4-->n1
+n5-->n3
+n8-->n3
+n5-->n4
+n8-->n4
+n1-->na
+n7-->nc
+na-->nc
+nd-->nc
+nf-->ni
+nh-->ni
 nj-->ni
-ni-->nh
+ni-->n8
 ```
 
 ### [terraform-provider-google/examples/cloud-armor](https://github.com/hashicorp/terraform-provider-google/tree/main/examples/cloud-armor)
