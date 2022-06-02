@@ -204,6 +204,7 @@ nu-->nq
   with:
     orientation: RL
     arrow-direction: forward
+    exclude: _orphan
 ```
 
 ```mermaid
@@ -260,7 +261,7 @@ na--->n1
 ```yaml
 - uses: asannou/tfmermaid-action@v1
   with:
-    exclude: var
+    exclude: _orphan
 ```
 
 ```mermaid
@@ -671,7 +672,7 @@ n2--->na
 ```yaml
 - uses: asannou/tfmermaid-action@v1
   with:
-    exclude: var
+    exclude: _orphan
 ```
 
 ```mermaid
@@ -899,7 +900,7 @@ nf--->n8
 ```yaml
 - uses: asannou/tfmermaid-action@v1
   with:
-    exclude: var
+    exclude: _orphan
 ```
 
 ```mermaid

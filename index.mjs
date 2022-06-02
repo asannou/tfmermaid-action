@@ -120,20 +120,23 @@ async function parse(input) {
   ];
   const excluded = (EXCLUDE ?? '').split(',');
   const types = included.filter((type) => !excluded.includes(type));
+  const orphan = !excluded.includes('_orphan');
   const re = new RegExp(
     '^(module\\.[^. ]+\\.)*' +
     '(' + types.join('|') + '|[0-9a-z-]+_.+)\\.'
   );
+  const func = (node) => parseNode(nodes, node.split('.'), node);
   const rl = readline.createInterface({ input, crlfDelay: Infinity });
   for await (const line of rl) {
     const [, src, arrow, dst] = (await parseProvider(line)).split('"');
     const [, srcNode] = (src ?? '').split(' ');
     if (srcNode && srcNode.match(re)) {
-      parseNodes(nodes, srcNode.split('.'), srcNode);
+      if (orphan) func(srcNode);
       if (arrow.trim() == '->') {
+        if (!orphan) func(srcNode);
         const [, dstNode] = dst.split(' ');
         if (dstNode.match(re)) {
-          parseNodes(nodes, dstNode.split('.'), dstNode);
+          func(dstNode);
           edges.push([srcNode, dstNode]);
         }
       }
@@ -159,14 +162,14 @@ async function parseProvider(addr) {
   return replaced;
 }
 
-function parseNodes(nodes, addrs, addr) {
+function parseNode(nodes, addrs, addr) {
   const prefix = addrs.shift();
   const type = prefix == 'data' ? `${prefix}.${addrs.shift()}` : prefix;
   const name = `${type}.${addrs.shift()}`;
   if (type == 'module') {
     if (addrs.length) {
       nodes[name] ??= {};
-      parseNodes(nodes[name], addrs, addr);
+      parseNode(nodes[name], addrs, addr);
     }
   } else {
     nodes[[name, ...addrs].join('.')] = addr;

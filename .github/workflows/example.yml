@@ -40,12 +40,13 @@ jobs:
           label: terraform-provider-aws/examples/events/kinesis
           orientation: RL
           arrow-direction: forward
+          exclude: _orphan
           working-directory: ./terraform-provider-aws/examples/events/kinesis
       - uses: ./
         with:
           file: ${{ github.workspace }}/README.md
           label: terraform-provider-aws/examples/lambda-file-systems
-          exclude: var
+          exclude: _orphan
           working-directory: ./terraform-provider-aws/examples/lambda-file-systems
       - uses: ./
         with:
@@ -61,7 +62,7 @@ jobs:
         with:
           file: ${{ github.workspace }}/README.md
           label: terraform-provider-aws/examples/s3-api-gateway-integration
-          exclude: var
+          exclude: _orphan
           working-directory: ./terraform-provider-aws/examples/s3-api-gateway-integration
       - uses: ./
         with:
@@ -84,7 +85,7 @@ jobs:
         with:
           file: ${{ github.workspace }}/README.md
           label: terraform-provider-aws/examples/workspaces
-          exclude: var
+          exclude: _orphan
           working-directory: ./terraform-provider-aws/examples/workspaces
       - uses: ./
         with:

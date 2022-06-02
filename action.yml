@@ -36,7 +36,7 @@ inputs:
     description: Comma-separated names of included types, e.g. `provider`.
     default: ""
   exclude:
-    description: Comma-separated names of excluded types, e.g. `var,local,output,data`.
+    description: Comma-separated names of excluded types, e.g. `var,local,output,data,_orphan`. `_orphan` means unlinked node.
     default: ""
   working-directory:
     description: Working directory.
