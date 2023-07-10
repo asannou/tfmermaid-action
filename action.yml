@@ -41,6 +41,9 @@ inputs:
   working-directory:
     description: Working directory.
     default: ./
+  terraform_version:
+    description: Terraform version.
+    default: "latest"
 runs:
   using: composite
   steps:
@@ -50,6 +53,7 @@ runs:
     - uses: hashicorp/setup-terraform@v2
       with:
         terraform_wrapper: false
+        terraform_version: ${{ inputs.terraform_version }}
     - run: ${{ github.action_path }}/convert.sh ${{ inputs.file }} ${{ inputs.label }}
       env:
         ORIENTATION: ${{ inputs.orientation }}
