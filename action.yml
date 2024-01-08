@@ -50,7 +50,7 @@ runs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
-    - uses: hashicorp/setup-terraform@v2
+    - uses: hashicorp/setup-terraform@v3
       with:
         terraform_wrapper: false
         terraform_version: ${{ inputs.terraform-version }}
