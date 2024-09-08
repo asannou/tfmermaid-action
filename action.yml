@@ -43,7 +43,7 @@ inputs:
     default: ./
   terraform-version:
     description: Terraform version.
-    default: "latest"
+    default: "<1.7.0"
 runs:
   using: composite
   steps:
