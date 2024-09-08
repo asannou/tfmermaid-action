@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-temp=$(mktemp $1.XXXXXXXXXX)
+temp=$(mktemp "$1.XXXXXXXXXX")
 
 terraform init -backend=false
-terraform graph | node $(dirname $0)/index.mjs $1 $2 > $temp
-mv $temp $1
+terraform graph | node "$(dirname "$0")/index.mjs" "$1" "$2" > "$temp"
+mv "$temp" "$1"
