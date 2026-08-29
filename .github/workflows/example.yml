@@ -1,8 +1,13 @@
 name: tfmermaid example
 on:
+  pull_request:
   push:
     branches:
       - master
+
+permissions:
+  contents: write
+
 jobs:
   example:
     runs-on: ubuntu-latest
@@ -126,6 +131,7 @@ jobs:
       - run: terraform graph | dot -Tsvg > ../../../graph.svg
         working-directory: ./terraform-provider-aws/examples/two-tier
       - name: commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           git add README.md
           if ! git diff --cached --quiet --exit-code
