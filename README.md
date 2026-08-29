@@ -706,17 +706,18 @@ n9["aws_api_gateway_method_response.<br/>Status500"]:::r
 na["aws_api_gateway_rest_api.MyS3"]:::r
 nb["aws_api_gateway_resource.<br/>Folder"]:::r
 nc["aws_api_gateway_resource.Item"]:::r
+nd["aws_api_gateway_stage.MyS3"]:::r
 end
 class n0 cs
-subgraph "nd"["IAM (Identity & Access Management)"]
-ne["aws_iam_role.<br/>s3_api_gateway_role"]:::r
-nf["aws_iam_policy.s3_policy"]:::r
-ng["aws_iam_role_policy_attachment.<br/>s3_policy_attach"]:::r
+subgraph "ne"["IAM (Identity & Access Management)"]
+nf["aws_iam_role.<br/>s3_api_gateway_role"]:::r
+ng["aws_iam_policy.s3_policy"]:::r
+nh["aws_iam_role_policy_attachment.<br/>s3_policy_attach"]:::r
 end
-class nd cs
+class ne cs
 n2-->n1
 n3-->n2
-ne-->n2
+nf-->n2
 n2-->n4
 n5-->n4
 n7-->n6
@@ -727,8 +728,9 @@ n2-->n7
 n2-->n9
 na-->nb
 nb-->nc
-nf-->ng
-ne-->ng
+n1-->nd
+ng-->nh
+nf-->nh
 ```
 
 ### [terraform-provider-aws/examples/s3-cross-account-access](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/s3-cross-account-access)
@@ -815,7 +817,7 @@ n8["aws_s3_bucket_acl.<br/>foo_bucket_acl"]:::r
 n9["aws_s3_object.object"]:::r
 end
 class n6 cs
-subgraph "na"["SageMaker"]
+subgraph "na"["SageMaker AI"]
 nb["aws_sagemaker_endpoint.foo"]:::r
 nc["aws_sagemaker_endpoint_configuration.<br/>foo"]:::r
 nd["aws_sagemaker_model.foo"]:::r
