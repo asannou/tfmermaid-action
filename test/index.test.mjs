@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-function convert(dot) {
+function convert(dot, environment = {}) {
   const result = spawnSync(process.execPath, ['index.mjs'], {
     cwd: new URL('..', import.meta.url),
     input: dot,
@@ -11,6 +11,7 @@ function convert(dot) {
       ...process.env,
       EXCLUDE: '',
       INCLUDE: '',
+      ...environment,
     },
   });
   assert.equal(result.status, 0, result.stderr);
@@ -40,4 +41,13 @@ test('continues to convert Terraform 1.6 and earlier graph output', () => {
   assert.match(output, /\["aws_instance\.web"\]:::r/);
   assert.match(output, /\(\["var\.name"\]\):::v/);
   assert.match(output, /n\w+--->n\w+/);
+});
+
+test('uses Mermaid entity codes for quotes in provider labels', () => {
+  const output = convert(`digraph {
+    "[root] provider[\\"terraform.io/builtin/terraform\\"]" [shape = "diamond"];
+  }`, { INCLUDE: 'provider' });
+
+  assert.match(output, /provider<br\/>\[#quot;terraform\.io\/builtin\/terraform#quot;\]/);
+  assert.doesNotMatch(output, /&quot;/);
 });
