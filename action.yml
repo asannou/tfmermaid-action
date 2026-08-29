@@ -47,15 +47,18 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: 18
-    - uses: hashicorp/setup-terraform@v3
+    - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
       with:
         terraform_wrapper: false
         terraform_version: ${{ inputs.terraform-version }}
-    - run: ${{ github.action_path }}/convert.sh ${{ inputs.file }} ${{ inputs.label }}
+    - run: "$ACTION_PATH/convert.sh \"$FILE\" \"$LABEL\""
       env:
+        ACTION_PATH: ${{ github.action_path }}
+        FILE: ${{ inputs.file }}
+        LABEL: ${{ inputs.label }}
         ORIENTATION: ${{ inputs.orientation }}
         ARROW_DIRECTION: ${{ inputs.arrow-direction }}
         ARROW_LENGTH: ${{ inputs.arrow-length }}
