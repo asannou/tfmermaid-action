@@ -759,9 +759,9 @@ n4["aws_s3_object.prod"]:::r
 n5["aws_s3_object.test"]:::r
 end
 class n0 cs
-n6[/"provider<br/>[&quot;registry.terraform.io/hashicorp/aws&quot;]"\]
-n7[/"provider<br/>[&quot;registry.terraform.io/hashicorp/aws&quot;].<br/>prod"\]
-n8[/"provider<br/>[&quot;registry.terraform.io/hashicorp/aws&quot;].<br/>test"\]
+n6[/"provider<br/>[#quot;registry.terraform.io/hashicorp/aws#quot;]"\]
+n7[/"provider<br/>[#quot;registry.terraform.io/hashicorp/aws#quot;].<br/>prod"\]
+n8[/"provider<br/>[#quot;registry.terraform.io/hashicorp/aws#quot;].<br/>test"\]
 subgraph "n9"["Input Variables"]
 na(["var.bucket_name"]):::v
 nb(["var.prod_access_key"]):::v
@@ -878,8 +878,8 @@ subgraph "n6"["STS (Security Token)"]
 n7{{"data.<br/>aws_caller_identity.<br/>first"}}:::r
 end
 class n6 cs
-n8[/"provider<br/>[&quot;registry.terraform.io/hashicorp/aws&quot;].<br/>first"\]
-n9[/"provider<br/>[&quot;registry.terraform.io/hashicorp/aws&quot;].<br/>second"\]
+n8[/"provider<br/>[#quot;registry.terraform.io/hashicorp/aws#quot;].<br/>first"\]
+n9[/"provider<br/>[#quot;registry.terraform.io/hashicorp/aws#quot;].<br/>second"\]
 subgraph "na"["Input Variables"]
 nb(["var.aws_first_access_key"]):::v
 nc(["var.aws_first_region"]):::v
@@ -1004,8 +1004,8 @@ n9["google_compute_target_pool.<br/>example"]:::r
 na["google_compute_url_map.<br/>default"]:::r
 end
 class n0 cs
-nb[/"provider<br/>[&quot;registry.terraform.io/hashicorp/google&quot;]"\]
-nc[/"provider<br/>[&quot;registry.terraform.io/hashicorp/random&quot;]"\]
+nb[/"provider<br/>[#quot;registry.terraform.io/hashicorp/google#quot;]"\]
+nc[/"provider<br/>[#quot;registry.terraform.io/hashicorp/random#quot;]"\]
 nd["random_id.instance_id"]:::r
 subgraph "ne"["Input Variables"]
 nf(["var.credentials_file_path"]):::v
@@ -1080,7 +1080,7 @@ nb["google_compute_target_http_proxy.<br/>http-lb-proxy"]:::r
 nc["google_compute_url_map.<br/>web-map"]:::r
 end
 class n0 cs
-nd[/"provider<br/>[&quot;registry.terraform.io/hashicorp/google&quot;]"\]
+nd[/"provider<br/>[#quot;registry.terraform.io/hashicorp/google#quot;]"\]
 subgraph "ne"["Input Variables"]
 nf(["var.credentials_file_path"]):::v
 ng(["var.project_name"]):::v
@@ -1151,8 +1151,8 @@ n8["google_project_service.<br/>endpoints_project"]:::r
 n9["google_project_service.<br/>endpoints_project_sm"]:::r
 end
 class n6 cs
-na[/"provider<br/>[&quot;registry.terraform.io/hashicorp/google&quot;]"\]
-nb[/"provider<br/>[&quot;registry.terraform.io/hashicorp/random&quot;]"\]
+na[/"provider<br/>[#quot;registry.terraform.io/hashicorp/google#quot;]"\]
+nb[/"provider<br/>[#quot;registry.terraform.io/hashicorp/random#quot;]"\]
 nc["random_id.project_name"]:::r
 subgraph "nd"["Input Variables"]
 ne(["var.billing_account_id"]):::v
@@ -1498,4 +1498,3 @@ n11-->nz
 n1b--->n18
 n1d--->n19
 ```
-

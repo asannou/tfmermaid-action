@@ -340,7 +340,7 @@ function wrapText(text) {
 function unparseProvider(name) {
   const [, provider, alias] = name.split('.');
   const unescaped = provider.replaceAll('_dot_', '.');
-  return [`provider[&quot;${unescaped}&quot;]`, alias].
+  return [`provider[#quot;${unescaped}#quot;]`, alias].
     filter(Boolean).
     join('.');
 }
