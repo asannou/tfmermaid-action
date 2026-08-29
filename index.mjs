@@ -128,14 +128,14 @@ async function parse(input) {
   const func = (node) => parseNode(nodes, node.split('.'), node);
   const rl = readline.createInterface({ input, crlfDelay: Infinity });
   for await (const line of rl) {
-    const [, src, arrow, dst] = (await parseProvider(line)).split('"');
-    const [, srcNode] = (src ?? '').split(' ');
+    const [src, arrow, dst] = parseStatement(await parseProvider(line));
+    const srcNode = normalizeNode(src);
     if (srcNode && srcNode.match(re)) {
       if (orphan) func(srcNode);
-      if (arrow.trim() == '->') {
+      if (arrow == '->') {
         if (!orphan) func(srcNode);
-        const [, dstNode] = dst.split(' ');
-        if (dstNode.match(re)) {
+        const dstNode = normalizeNode(dst);
+        if (dstNode?.match(re)) {
           func(dstNode);
           edges.push([srcNode, dstNode]);
         }
@@ -148,9 +148,27 @@ async function parse(input) {
   };
 }
 
+function parseStatement(line) {
+  const identifiers = Array.from(
+    line.matchAll(/"((?:\\.|[^"\\])*)"/g),
+    (match) => match[1],
+  );
+  const arrow = line.includes('->') ? '->' : undefined;
+  return [identifiers[0], arrow, arrow ? identifiers[1] : undefined];
+}
+
+function normalizeNode(node) {
+  return node?.
+    replace(/^\[[^\]]+\]\s+/, '').
+    replace(/ \([^)]*\)$/, '');
+}
+
 async function parseProvider(addr) {
   const providers = new Set();
-  const re = new RegExp('provider\\[\\\\"([^"]+)\\\\"\\](\\.[0-9a-z-_]+)?');
+  const re = new RegExp(
+    'provider\\[\\\\"([^"]+)\\\\"\\](\\.[0-9a-z-_]+)?',
+    'g',
+  );
   const replaced = addr.replace(re, (match, provider, alias = '') => {
     providers.add(provider);
     const escaped = provider.replaceAll('.', '_dot_');
@@ -376,4 +394,3 @@ if (fileName) {
 } else {
   dump(comment, graph, stdout);
 }
-
