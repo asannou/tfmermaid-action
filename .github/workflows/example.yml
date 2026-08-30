@@ -127,8 +127,8 @@ jobs:
           file: ${{ github.workspace }}/README.md
           label: terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
           working-directory: ./terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
-      - name: Verify generated diagrams
-        run: node test/verify-example-output.mjs README.md
+      - name: Run tests
+        run: node --test
       - run: sudo apt install graphviz
       - run: terraform graph | dot -Tsvg > ../../../graph.svg
         working-directory: ./terraform-provider-aws/examples/two-tier
