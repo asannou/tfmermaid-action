@@ -127,6 +127,23 @@ jobs:
           file: ${{ github.workspace }}/README.md
           label: terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
           working-directory: ./terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: module-views/expanded
+          working-directory: ./examples/module-views
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: module-views/compact
+          module-view: compact
+          working-directory: ./examples/module-views
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
+          label: module-views/deduplicated
+          module-view: deduplicated
+          working-directory: ./examples/module-views
       - name: Run tests
         run: |
           node --test test/*.test.mjs

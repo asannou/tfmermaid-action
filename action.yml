@@ -44,6 +44,9 @@ inputs:
   terraform-version:
     description: Terraform version.
     default: latest
+  module-view:
+    description: Module rendering mode. One of expanded, compact, or deduplicated.
+    default: expanded
 runs:
   using: composite
   steps:
@@ -64,5 +67,6 @@ runs:
         ARROW_LENGTH: ${{ inputs.arrow-length }}
         INCLUDE: ${{ inputs.include }}
         EXCLUDE: ${{ inputs.exclude }}
+        MODULE_VIEW: ${{ inputs.module-view }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}

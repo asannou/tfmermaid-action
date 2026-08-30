@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const expectedLabels = [
+  'module-views/expanded',
+  'module-views/compact',
+  'module-views/deduplicated',
   'terraform-provider-aws/examples/two-tier',
   'terraform-provider-aws/examples/ecs-alb',
   'terraform-provider-aws/examples/events/kinesis',
@@ -45,3 +48,26 @@ for (const label of expectedLabels) {
   assert.ok(nodeCount > 0, `empty diagram: ${label}`);
   console.log(`${label}: ${nodeCount} nodes, ${edgeCount} edges`);
 }
+
+const occurrences = (label, pattern) =>
+  (blocks.get(label).match(pattern) ?? []).length;
+assert.equal(
+  occurrences('module-views/expanded', /\["terraform_data\.service"\]:::r/g),
+  2,
+  'expanded view must render both module bodies',
+);
+assert.equal(
+  occurrences('module-views/compact', /terraform_data\.service/g),
+  0,
+  'compact view must hide module bodies',
+);
+assert.equal(
+  occurrences('module-views/deduplicated', /\["terraform_data\.service"\]:::r/g),
+  1,
+  'deduplicated view must render a repeated source once',
+);
+assert.match(
+  blocks.get('module-views/deduplicated'),
+  /Module definitions/,
+  'deduplicated view must include module definitions',
+);

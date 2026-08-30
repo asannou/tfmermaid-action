@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 
 function convert(dot, environment = {}) {
@@ -11,6 +14,7 @@ function convert(dot, environment = {}) {
       ...process.env,
       EXCLUDE: '',
       INCLUDE: '',
+      MODULE_VIEW: 'expanded',
       ...environment,
     },
   });
@@ -50,4 +54,54 @@ test('uses Mermaid entity codes for quotes in provider labels', () => {
 
   assert.match(output, /provider<br\/>\[#quot;terraform\.io\/builtin\/terraform#quot;\]/);
   assert.doesNotMatch(output, /&quot;/);
+});
+
+const repeatedModuleGraph = `digraph G {
+  "terraform_data.gateway" -> "module.blue.output.id";
+  "module.blue.output.id" -> "module.blue.terraform_data.service";
+  "module.blue.terraform_data.service" -> "module.blue.var.name";
+  "terraform_data.gateway" -> "module.green.output.id";
+  "module.green.output.id" -> "module.green.terraform_data.service";
+  "module.green.terraform_data.service" -> "module.green.var.name";
+}`;
+
+test('keeps every module instance expanded by default', () => {
+  const output = convert(repeatedModuleGraph);
+
+  assert.equal((output.match(/\["module\.(?:blue|green)"\]/g) ?? []).length, 2);
+  assert.equal((output.match(/\["terraform_data\.service"\]:::r/g) ?? []).length, 2);
+  assert.doesNotMatch(output, /Module definitions/);
+});
+
+test('collapses module internals in compact view', () => {
+  const output = convert(repeatedModuleGraph, { MODULE_VIEW: 'compact' });
+
+  assert.match(output, /\["module\.blue"\]:::v/);
+  assert.match(output, /\["module\.green"\]:::v/);
+  assert.doesNotMatch(output, /terraform_data\.service/);
+  assert.doesNotMatch(output, /Module definitions/);
+});
+
+test('renders the definition of a repeated module source once', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tfmermaid-modules-'));
+  const manifest = path.join(directory, 'modules.json');
+  fs.writeFileSync(manifest, JSON.stringify({
+    Modules: [
+      { Key: '', Source: '', Dir: '.' },
+      { Key: 'blue', Source: './service', Dir: './service' },
+      { Key: 'green', Source: './service', Dir: './service' },
+    ],
+  }));
+
+  const output = convert(repeatedModuleGraph, {
+    MODULE_VIEW: 'deduplicated',
+    TF_MODULES_FILE: manifest,
+  });
+
+  assert.match(output, /\["module\.blue"\]:::v/);
+  assert.match(output, /\["module\.green"\]:::v/);
+  assert.match(output, /Module definitions/);
+  assert.match(output, /\["\.\/service"\]/);
+  assert.equal((output.match(/\["terraform_data\.service"\]:::r/g) ?? []).length, 1);
+  assert.equal((output.match(/-\.->/g) ?? []).length, 2);
 });

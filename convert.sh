@@ -22,5 +22,6 @@ TF_DATA_DIR="$data_dir" terraform init \
   -reconfigure \
   -backend-config="path=$data_dir/terraform.tfstate"
 TF_DATA_DIR="$data_dir" terraform graph -type=plan |
+  TF_MODULES_FILE="$data_dir/modules/modules.json" \
   node "$(dirname "$0")/index.mjs" "$target" "$label" > "$output_temp"
 mv "$output_temp" "$target"

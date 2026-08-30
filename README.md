@@ -37,6 +37,140 @@ The converted output is embedded inside the mermaid code block commented `%%tfme
 ```
 ~~~
 
+## Module views
+
+The `module-view` input controls how module calls are rendered. `expanded` shows
+every module instance in full and is the default. `compact` represents each
+top-level module call as one node. `deduplicated` represents repeated calls as
+nodes and shows the internal structure of each repeatedly used module source
+only once; module sources used once remain expanded.
+
+The examples below call the same `./service` module as `module.blue` and
+`module.green`.
+
+### Expanded
+
+```mermaid
+%%tfmermaid:module-views/expanded
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+subgraph "n0"["module.blue"]
+subgraph "n0_padding"[" "]
+n1["terraform_data.service"]:::r
+subgraph "n2"["Output Values"]
+n3(["output.id"]):::v
+end
+class n2 vs
+subgraph "n4"["Input Variables"]
+n5(["var.name"]):::v
+end
+class n4 vs
+end
+class n0_padding ps
+end
+class n0 ms
+subgraph "n6"["module.green"]
+subgraph "n6_padding"[" "]
+n7["terraform_data.service"]:::r
+subgraph "n8"["Output Values"]
+n9(["output.id"]):::v
+end
+class n8 vs
+subgraph "na"["Input Variables"]
+nb(["var.name"]):::v
+end
+class na vs
+end
+class n6_padding ps
+end
+class n6 ms
+nc["terraform_data.gateway"]:::r
+subgraph "nd"["Output Values"]
+ne(["output.service_ids"]):::v
+end
+class nd vs
+n1-->n3
+n5-->n1
+n7-->n9
+nb-->n7
+nc--->ne
+n3-->nc
+n9-->nc
+```
+
+### Compact
+
+```mermaid
+%%tfmermaid:module-views/compact
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+n0["module.blue"]:::v
+n1["module.green"]:::v
+n2["terraform_data.gateway"]:::r
+subgraph "n3"["Output Values"]
+n4(["output.service_ids"]):::v
+end
+class n3 vs
+n2--->n4
+n0-->n2
+n1-->n2
+```
+
+### Deduplicated
+
+```mermaid
+%%tfmermaid:module-views/deduplicated
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+n0["module.blue"]:::v
+n1["module.green"]:::v
+n2["terraform_data.gateway"]:::r
+subgraph "n3"["Output Values"]
+n4(["output.service_ids"]):::v
+end
+class n3 vs
+subgraph "n5"["Module definitions"]
+subgraph "n6"["./service"]
+n7["terraform_data.service"]:::r
+subgraph "n8"["Output Values"]
+n9(["output.id"]):::v
+end
+class n8 vs
+subgraph "na"["Input Variables"]
+nb(["var.name"]):::v
+end
+class na vs
+end
+class n6 ms
+end
+class n5 cs
+n2--->n4
+n0-->n2
+n1-->n2
+n7--->n9
+nb--->n7
+n0-.->n6
+n1-.->n6
+```
+
 ## Examples
 
 ### [terraform-provider-aws/examples/two-tier](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/two-tier)
