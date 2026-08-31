@@ -107,4 +107,22 @@ test('renders the definition of a repeated module source once', () => {
   assert.match(output, /style \w+ fill:none,stroke:#dce0e6,stroke-width:2px/);
   assert.equal((output.match(/\["terraform_data\.service"\]:::r/g) ?? []).length, 1);
   assert.equal((output.match(/-\.->/g) ?? []).length, 2);
+  const blue = output.match(/(n\w+)\["module\.blue"\]/)[1];
+  const green = output.match(/(n\w+)\["module\.green"\]/)[1];
+  const definition = output.match(/subgraph "(n\w+)"\["\.\/service"\]/)[1];
+  assert.ok(output.includes(`${blue}-.->${definition}`));
+  assert.ok(output.includes(`${green}-.->${definition}`));
+
+  const reversed = convert(repeatedModuleGraph, {
+    MODULE_VIEW: 'deduplicated',
+    TF_MODULES_FILE: manifest,
+    ARROW_DIRECTION: 'reverse',
+  });
+  const reversedBlue = reversed.match(/(n\w+)\["module\.blue"\]/)[1];
+  const reversedGreen = reversed.match(/(n\w+)\["module\.green"\]/)[1];
+  const reversedDefinition = reversed.match(
+    /subgraph "(n\w+)"\["\.\/service"\]/,
+  )[1];
+  assert.ok(reversed.includes(`${reversedDefinition}-.->${reversedBlue}`));
+  assert.ok(reversed.includes(`${reversedDefinition}-.->${reversedGreen}`));
 });

@@ -413,12 +413,13 @@ function dumpDefinitions(definitions, stream) {
 
 function dumpDefinitionReferences(definitions, references, stream) {
   const targets = new Map(
-    definitions.map((definition) => [definition.identity, mapper.getId(definition.id)]),
+    definitions.map((definition) => [definition.identity, definition.id]),
   );
   for (const reference of references) {
     const target = targets.get(reference.identity);
     if (target) {
-      stream.write(`${mapper.getId(reference.address)}-.->${target}\n`);
+      const edge = arrangeEdge([reference.address, target]);
+      stream.write(`${edge.map((address) => mapper.getId(address)).join('-.->')}\n`);
     }
   }
 }
@@ -443,9 +444,6 @@ function unparseProvider(name) {
 }
 
 function dumpEdges(edges, stream) {
-  const arrange = ARROW_DIRECTION == 'reverse' ?
-    ([src, dst]) => [dst, src] :
-    (edge) => edge;
   const getId = mapper.getId.bind(mapper);
   const logicalAddress = (address) => address.split('|').at(-1);
   const arrow = ([src, dst]) =>
@@ -454,8 +452,14 @@ function dumpEdges(edges, stream) {
       `${'-'.repeat(ARROW_LENGTH || 2)}->` :
       '-->';
   for (const edge of edges) {
-    stream.write(arrange(edge).map(getId).join(arrow(edge)) + '\n');
+    stream.write(arrangeEdge(edge).map(getId).join(arrow(edge)) + '\n');
   }
+}
+
+function arrangeEdge([source, destination]) {
+  return ARROW_DIRECTION == 'reverse' ?
+    [destination, source] :
+    [source, destination];
 }
 
 async function embed(fileName, comment, graph, stream) {
