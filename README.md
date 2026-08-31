@@ -148,7 +148,9 @@ n4(["output.service_ids"]):::v
 end
 class n3 vs
 subgraph "n5"["Module definitions"]
+direction LR
 subgraph "n6"["./service"]
+direction LR
 n7["terraform_data.service"]:::r
 subgraph "n8"["Output Values"]
 n9(["output.id"]):::v
@@ -160,8 +162,9 @@ end
 class na vs
 end
 class n6 ms
+style n6 fill:none,stroke:#dce0e6,stroke-width:2px
 end
-class n5 cs
+class n5 ms
 n2--->n4
 n0-->n2
 n1-->n2

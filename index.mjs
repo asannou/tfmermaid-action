@@ -396,16 +396,19 @@ function dumpDefinitions(definitions, stream) {
   if (!definitions.length) return;
   const root = mapper.getId('module-definitions');
   stream.write(`subgraph "${root}"["Module definitions"]\n`);
+  stream.write(`direction ${ORIENTATION || 'LR'}\n`);
   for (const definition of definitions) {
     const title = mapper.getId(definition.id);
     const label = definition.label.replaceAll('"', '#quot;');
     stream.write(`subgraph "${title}"["${label}"]\n`);
+    stream.write(`direction ${ORIENTATION || 'LR'}\n`);
     dumpNodes(definition.nodes, `${title}.`, stream);
     stream.write('end\n');
     stream.write(`class ${title} ms\n`);
+    stream.write(`style ${title} fill:none,stroke:#dce0e6,stroke-width:2px\n`);
   }
   stream.write('end\n');
-  stream.write(`class ${root} cs\n`);
+  stream.write(`class ${root} ms\n`);
 }
 
 function dumpDefinitionReferences(definitions, references, stream) {

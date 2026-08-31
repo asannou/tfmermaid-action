@@ -102,6 +102,9 @@ test('renders the definition of a repeated module source once', () => {
   assert.match(output, /\["module\.green"\]:::v/);
   assert.match(output, /Module definitions/);
   assert.match(output, /\["\.\/service"\]/);
+  assert.equal((output.match(/direction LR/g) ?? []).length, 2);
+  assert.match(output, /class \w+ ms\n/);
+  assert.match(output, /style \w+ fill:none,stroke:#dce0e6,stroke-width:2px/);
   assert.equal((output.match(/\["terraform_data\.service"\]:::r/g) ?? []).length, 1);
   assert.equal((output.match(/-\.->/g) ?? []).length, 2);
 });
