@@ -1497,6 +1497,12 @@ n5-->nt
 
 ### [terraform-provider-azurerm/examples/traffic-manager/vm-scale-set](https://github.com/hashicorp/terraform-provider-azurerm/tree/main/examples/traffic-manager/vm-scale-set)
 
+```yaml
+- uses: asannou/tfmermaid-action@v1
+  with:
+    module-view: deduplicated
+```
+
 ```mermaid
 %%tfmermaid:terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
 %%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
@@ -1517,121 +1523,78 @@ n4["azurerm_traffic_manager_azure_endpoint.<br/>region2"]:::r
 n5["azurerm_traffic_manager_profile.<br/>example"]:::r
 end
 class n2 cs
-subgraph "n6"["module.region1"]
-subgraph "n6_padding"[" "]
-subgraph "n7"["Load Balancer"]
-n8["azurerm_lb.example"]:::r
-n9["azurerm_lb_backend_address_pool.<br/>example"]:::r
-na["azurerm_lb_probe.example"]:::r
-nb["azurerm_lb_rule.example"]:::r
+n6["module.region1"]:::v
+n7["module.region2"]:::v
+subgraph "n8"["Input Variables"]
+n9(["var.alt_location"]):::v
+na(["var.location"]):::v
+nb(["var.prefix"]):::v
 end
-class n7 cs
-subgraph "nc"["Network"]
-nd["azurerm_public_ip.example"]:::r
-ne["azurerm_subnet.example"]:::r
-nf["azurerm_virtual_network.<br/>example"]:::r
+class n8 vs
+subgraph "nc"["Module definitions"]
+direction LR
+subgraph "nd"["./modules/region"]
+direction LR
+subgraph "ne"["Load Balancer"]
+nf["azurerm_lb.example"]:::r
+ng["azurerm_lb_backend_address_pool.<br/>example"]:::r
+nh["azurerm_lb_probe.example"]:::r
+ni["azurerm_lb_rule.example"]:::r
 end
-class nc cs
-subgraph "ng"["Base"]
-nh["azurerm_resource_group.<br/>example"]:::r
+class ne cs
+subgraph "nj"["Network"]
+nk["azurerm_public_ip.example"]:::r
+nl["azurerm_subnet.example"]:::r
+nm["azurerm_virtual_network.<br/>example"]:::r
 end
-class ng cs
-subgraph "ni"["Compute"]
-nj["azurerm_virtual_machine_scale_set.<br/>example"]:::r
+class nj cs
+subgraph "nn"["Base"]
+no["azurerm_resource_group.<br/>example"]:::r
 end
-class ni cs
-subgraph "nk"["Output Values"]
-nl(["output.public_ip_address_id"]):::v
+class nn cs
+subgraph "np"["Compute"]
+nq["azurerm_virtual_machine_scale_set.<br/>example"]:::r
 end
-class nk vs
-nm(["local.<br/>frontend_ip_configuration_name"]):::v
-subgraph "nn"["Input Variables"]
-no(["var.location"]):::v
-np(["var.prefix"]):::v
+class np cs
+subgraph "nr"["Output Values"]
+ns(["output.public_ip_address_id"]):::v
 end
-class nn vs
+class nr vs
+nt(["local.<br/>frontend_ip_configuration_name"]):::v
+subgraph "nu"["Input Variables"]
+nv(["var.location"]):::v
+nw(["var.prefix"]):::v
 end
-class n6_padding ps
+class nu vs
 end
-class n6 ms
-subgraph "nq"["module.region2"]
-subgraph "nq_padding"[" "]
-subgraph "nr"["Load Balancer"]
-ns["azurerm_lb.example"]:::r
-nt["azurerm_lb_backend_address_pool.<br/>example"]:::r
-nu["azurerm_lb_probe.example"]:::r
-nv["azurerm_lb_rule.example"]:::r
+class nd ms
+style nd fill:none,stroke:#dce0e6,stroke-width:2px
 end
-class nr cs
-subgraph "nw"["Network"]
-nx["azurerm_public_ip.example"]:::r
-ny["azurerm_subnet.example"]:::r
-nz["azurerm_virtual_network.<br/>example"]:::r
-end
-class nw cs
-subgraph "n10"["Base"]
-n11["azurerm_resource_group.<br/>example"]:::r
-end
-class n10 cs
-subgraph "n12"["Compute"]
-n13["azurerm_virtual_machine_scale_set.<br/>example"]:::r
-end
-class n12 cs
-subgraph "n14"["Output Values"]
-n15(["output.public_ip_address_id"]):::v
-end
-class n14 vs
-n16(["local.<br/>frontend_ip_configuration_name"]):::v
-subgraph "n17"["Input Variables"]
-n18(["var.location"]):::v
-n19(["var.prefix"]):::v
-end
-class n17 vs
-end
-class nq_padding ps
-end
-class nq ms
-subgraph "n1a"["Input Variables"]
-n1b(["var.alt_location"]):::v
-n1c(["var.location"]):::v
-n1d(["var.prefix"]):::v
-end
-class n1a vs
-n1c--->n1
-n1d--->n1
+class nc ms
+na--->n1
+nb--->n1
 n5-->n3
-nl-->n3
+n6-->n3
 n5-->n4
-n15-->n4
+n7-->n4
 n1-->n5
-nd-->n8
-nm-->n8
-n8-->n9
-n8-->na
-n9-->nb
-na-->nb
-nh-->nd
-no-->nh
-np-->nh
-nf-->ne
-n9-->nj
-ne-->nj
-nh-->nf
-n1c--->no
-n1d--->np
-nx-->ns
-n16-->ns
-ns-->nt
-ns-->nu
-nt-->nv
-nu-->nv
-n11-->nx
-n18-->n11
-n19-->n11
-nz-->ny
-nt-->n13
-ny-->n13
-n11-->nz
-n1b--->n18
-n1d--->n19
+na--->n6
+nb--->n6
+n9--->n7
+nb--->n7
+nk-->nf
+nt-->nf
+nf-->ng
+nf-->nh
+ng-->ni
+nh-->ni
+no-->nk
+nv--->no
+nw--->no
+nm-->nl
+ng-->nq
+nl-->nq
+no-->nm
+nd-.->n6
+nd-.->n7
 ```
