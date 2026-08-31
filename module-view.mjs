@@ -118,34 +118,13 @@ function transform(addresses, edges, mapper) {
   };
 }
 
-function contractGraph(addresses, edges, retained) {
+function filterGraph(addresses, edges, retained) {
   const retainedAddresses = addresses.filter(retained);
   const retainedSet = new Set(retainedAddresses);
-  const adjacency = new Map();
-  for (const [source, destination] of edges) {
-    adjacency.set(source, adjacency.get(source) ?? []);
-    adjacency.get(source).push(destination);
-  }
-
-  const contractedEdges = [];
-  for (const source of retainedAddresses) {
-    const pending = [...(adjacency.get(source) ?? [])];
-    const visited = new Set();
-    while (pending.length) {
-      const destination = pending.shift();
-      if (visited.has(destination)) continue;
-      visited.add(destination);
-      if (retainedSet.has(destination)) {
-        contractedEdges.push([source, destination]);
-      } else {
-        pending.push(...(adjacency.get(destination) ?? []));
-      }
-    }
-  }
-
   return {
     addresses: retainedAddresses,
-    edges: uniqueEdges(contractedEdges),
+    edges: edges.filter(([source, destination]) =>
+      retainedSet.has(source) && retainedSet.has(destination)),
   };
 }
 
@@ -214,7 +193,7 @@ export function transformModuleGraph(
       return type == 'var' || type == 'output';
     };
     return {
-      ...contractGraph(addresses, edges, retained),
+      ...filterGraph(addresses, edges, retained),
       definitions: [],
       references: [],
     };

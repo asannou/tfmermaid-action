@@ -36,7 +36,7 @@ test('rejects unknown module views', () => {
   );
 });
 
-test('contracts hidden resources between the inputs and outputs of non-representative calls', () => {
+test('does not infer edges across resources hidden from non-representative calls', () => {
   const addresses = [
     'module.blue.output.id',
     'module.blue.terraform_data.example',
@@ -68,7 +68,6 @@ test('contracts hidden resources between the inputs and outputs of non-represent
   assert.deepEqual(graph.edges, [
     ['module.blue.output.id', 'module.blue.terraform_data.example'],
     ['module.blue.terraform_data.example', 'module.blue.var.name'],
-    ['module.green.output.id', 'module.green.var.name'],
   ]);
   assert.deepEqual(graph.definitions, []);
 });

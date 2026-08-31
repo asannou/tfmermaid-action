@@ -176,12 +176,11 @@ subgraph "nc"["Output Values"]
 nd(["output.service_ids"]):::v
 end
 class nc vs
+n1-->n3
 n5-->n1
+n6--->nd
 n3-->n6
 n9-->n6
-n1-->n3
-nb-->n9
-n6--->nd
 ```
 
 ### Deduplicated
