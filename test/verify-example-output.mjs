@@ -6,6 +6,7 @@ import fs from 'node:fs';
 const expectedLabels = [
   'module-views/expanded',
   'module-views/compact',
+  'module-views/representative',
   'module-views/deduplicated',
   'terraform-provider-aws/examples/two-tier',
   'terraform-provider-aws/examples/ecs-alb',
@@ -60,6 +61,26 @@ assert.equal(
   occurrences('module-views/compact', /terraform_data\.service/g),
   0,
   'compact view must hide module bodies',
+);
+assert.equal(
+  occurrences('module-views/representative', /\[\"terraform_data\.service\"\]:::r/g),
+  1,
+  'representative view must render one module body',
+);
+assert.equal(
+  occurrences('module-views/representative', /\(\[\"output\.id\"\]\):::v/g),
+  2,
+  'representative view must retain every module output',
+);
+assert.equal(
+  occurrences('module-views/representative', /\(\[\"var\.name\"\]\):::v/g),
+  2,
+  'representative view must retain every module input',
+);
+assert.doesNotMatch(
+  blocks.get('module-views/representative'),
+  /Module definitions/,
+  'representative view must keep the representative in place',
 );
 assert.equal(
   occurrences('module-views/deduplicated', /\["terraform_data\.service"\]:::r/g),

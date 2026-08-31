@@ -142,6 +142,12 @@ jobs:
       - uses: ./
         with:
           file: ${{ github.workspace }}/README.md
+          label: module-views/representative
+          module-view: representative
+          working-directory: ./examples/module-views
+      - uses: ./
+        with:
+          file: ${{ github.workspace }}/README.md
           label: module-views/deduplicated
           module-view: deduplicated
           working-directory: ./examples/module-views

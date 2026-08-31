@@ -36,6 +36,43 @@ test('rejects unknown module views', () => {
   );
 });
 
+test('contracts hidden resources between the inputs and outputs of non-representative calls', () => {
+  const addresses = [
+    'module.blue.output.id',
+    'module.blue.terraform_data.example',
+    'module.blue.var.name',
+    'module.green.output.id',
+    'module.green.terraform_data.example',
+    'module.green.var.name',
+  ];
+  const edges = [
+    ['module.blue.output.id', 'module.blue.terraform_data.example'],
+    ['module.blue.terraform_data.example', 'module.blue.var.name'],
+    ['module.green.output.id', 'module.green.terraform_data.example'],
+    ['module.green.terraform_data.example', 'module.green.var.name'],
+  ];
+  const manifest = new Map([
+    ['blue', { identity: 'service', label: './service' }],
+    ['green', { identity: 'service', label: './service' }],
+  ]);
+
+  const graph = transformModuleGraph(addresses, edges, 'representative', manifest);
+
+  assert.deepEqual(graph.addresses, [
+    'module.blue.output.id',
+    'module.blue.terraform_data.example',
+    'module.blue.var.name',
+    'module.green.output.id',
+    'module.green.var.name',
+  ]);
+  assert.deepEqual(graph.edges, [
+    ['module.blue.output.id', 'module.blue.terraform_data.example'],
+    ['module.blue.terraform_data.example', 'module.blue.var.name'],
+    ['module.green.output.id', 'module.green.var.name'],
+  ]);
+  assert.deepEqual(graph.definitions, []);
+});
+
 test('links nested calls from their displayed parent definition', () => {
   const addresses = [
     'module.east.module.blue.terraform_data.example',

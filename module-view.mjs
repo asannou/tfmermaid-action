@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const views = new Set(['expanded', 'compact', 'deduplicated']);
+const views = new Set([
+  'expanded',
+  'compact',
+  'deduplicated',
+  'representative',
+]);
 
 export function loadModuleManifest(fileName) {
   if (!fileName) {
-    throw new Error('Module metadata is unavailable for the deduplicated view.');
+    throw new Error('Module metadata is unavailable for this module view.');
   }
   const manifest = JSON.parse(fs.readFileSync(fileName, 'utf8'));
   const modules = new Map();
@@ -113,6 +118,37 @@ function transform(addresses, edges, mapper) {
   };
 }
 
+function contractGraph(addresses, edges, retained) {
+  const retainedAddresses = addresses.filter(retained);
+  const retainedSet = new Set(retainedAddresses);
+  const adjacency = new Map();
+  for (const [source, destination] of edges) {
+    adjacency.set(source, adjacency.get(source) ?? []);
+    adjacency.get(source).push(destination);
+  }
+
+  const contractedEdges = [];
+  for (const source of retainedAddresses) {
+    const pending = [...(adjacency.get(source) ?? [])];
+    const visited = new Set();
+    while (pending.length) {
+      const destination = pending.shift();
+      if (visited.has(destination)) continue;
+      visited.add(destination);
+      if (retainedSet.has(destination)) {
+        contractedEdges.push([source, destination]);
+      } else {
+        pending.push(...(adjacency.get(destination) ?? []));
+      }
+    }
+  }
+
+  return {
+    addresses: retainedAddresses,
+    edges: uniqueEdges(contractedEdges),
+  };
+}
+
 function stripModulePrefix(address, prefix) {
   return address.slice(prefix.length + 1);
 }
@@ -125,7 +161,7 @@ export function transformModuleGraph(
 ) {
   if (!views.has(view)) {
     throw new Error(
-      `Unsupported module view: ${view}. Expected expanded, compact, or deduplicated.`,
+      `Unsupported module view: ${view}. Expected expanded, compact, deduplicated, or representative.`,
     );
   }
 
@@ -163,6 +199,26 @@ export function transformModuleGraph(
       filter(([, calls]) => calls.size > 1).
       map(([identity]) => identity),
   );
+  if (view == 'representative') {
+    const omittedCalls = new Set();
+    for (const identity of repeated) {
+      const calls = Array.from(callsByIdentity.get(identity).keys()).sort();
+      for (const call of calls.slice(1)) omittedCalls.add(call);
+    }
+    const retained = (address) => {
+      const omitted = moduleCalls(address).
+        find((call) => omittedCalls.has(call.address));
+      if (!omitted) return true;
+      const internal = stripModulePrefix(address, omitted.address);
+      const type = splitAddress(internal)[0];
+      return type == 'var' || type == 'output';
+    };
+    return {
+      ...contractGraph(addresses, edges, retained),
+      definitions: [],
+      references: [],
+    };
+  }
   const collapsedCall = (address, ancestor = '') => {
     for (const call of moduleCalls(address)) {
       if (ancestor && !call.address.startsWith(`${ancestor}.`)) continue;

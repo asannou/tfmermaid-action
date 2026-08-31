@@ -45,7 +45,7 @@ inputs:
     description: Terraform version.
     default: latest
   module-view:
-    description: Module rendering mode. One of expanded, compact, or deduplicated.
+    description: Module rendering mode. One of expanded, compact, deduplicated, or representative.
     default: expanded
 runs:
   using: composite

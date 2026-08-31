@@ -162,7 +162,7 @@ async function parse(input) {
     }
   }
   const view = MODULE_VIEW || 'expanded';
-  const manifest = view == 'deduplicated' ?
+  const manifest = ['deduplicated', 'representative'].includes(view) ?
     loadModuleManifest(TF_MODULES_FILE) :
     new Map();
   const transformed = transformModuleGraph(

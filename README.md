@@ -41,9 +41,11 @@ The converted output is embedded inside the mermaid code block commented `%%tfme
 
 The `module-view` input controls how module calls are rendered. `expanded` shows
 every module instance in full and is the default. `compact` represents each
-top-level module call as one node. `deduplicated` represents repeated calls as
-nodes and shows the internal structure of each repeatedly used module source
-only once; module sources used once remain expanded.
+top-level module call as one node. `representative` fully expands the first
+instance of each repeated module source and keeps only the inputs and outputs
+of the remaining instances. `deduplicated` represents repeated calls as nodes
+and shows the internal structure of each repeatedly used module source only
+once; module sources used once remain expanded.
 
 The examples below call the same `./service` module as `module.blue` and
 `module.green`.
@@ -126,6 +128,60 @@ class n3 vs
 n2--->n4
 n0-->n2
 n1-->n2
+```
+
+### Representative
+
+```mermaid
+%%tfmermaid:module-views/representative
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+subgraph "n0"["module.blue"]
+subgraph "n0_padding"[" "]
+n1["terraform_data.service"]:::r
+subgraph "n2"["Output Values"]
+n3(["output.id"]):::v
+end
+class n2 vs
+subgraph "n4"["Input Variables"]
+n5(["var.name"]):::v
+end
+class n4 vs
+end
+class n0_padding ps
+end
+class n0 ms
+n6["terraform_data.gateway"]:::r
+subgraph "n7"["module.green"]
+subgraph "n7_padding"[" "]
+subgraph "n8"["Output Values"]
+n9(["output.id"]):::v
+end
+class n8 vs
+subgraph "na"["Input Variables"]
+nb(["var.name"]):::v
+end
+class na vs
+end
+class n7_padding ps
+end
+class n7 ms
+subgraph "nc"["Output Values"]
+nd(["output.service_ids"]):::v
+end
+class nc vs
+n5-->n1
+n3-->n6
+n9-->n6
+n1-->n3
+nb-->n9
+n6--->nd
 ```
 
 ### Deduplicated

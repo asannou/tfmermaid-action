@@ -126,3 +126,27 @@ test('renders the definition of a repeated module source once', () => {
   assert.ok(reversed.includes(`${reversedDefinition}-.->${reversedBlue}`));
   assert.ok(reversed.includes(`${reversedDefinition}-.->${reversedGreen}`));
 });
+
+test('fully renders one representative and keeps only inputs and outputs in the rest', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tfmermaid-modules-'));
+  const manifest = path.join(directory, 'modules.json');
+  fs.writeFileSync(manifest, JSON.stringify({
+    Modules: [
+      { Key: '', Source: '', Dir: '.' },
+      { Key: 'blue', Source: './service', Dir: './service' },
+      { Key: 'green', Source: './service', Dir: './service' },
+    ],
+  }));
+
+  const output = convert(repeatedModuleGraph, {
+    MODULE_VIEW: 'representative',
+    TF_MODULES_FILE: manifest,
+  });
+
+  assert.match(output, /subgraph \"\w+\"\[\"module\.blue\"\]/);
+  assert.match(output, /subgraph \"\w+\"\[\"module\.green\"\]/);
+  assert.equal((output.match(/\[\"terraform_data\.service\"\]:::r/g) ?? []).length, 1);
+  assert.equal((output.match(/\(\[\"output\.id\"\]\):::v/g) ?? []).length, 2);
+  assert.equal((output.match(/\(\[\"var\.name\"\]\):::v/g) ?? []).length, 2);
+  assert.doesNotMatch(output, /Module definitions/);
+});
