@@ -70,6 +70,15 @@ test('does not infer edges across resources hidden from non-representative calls
     ['module.blue.terraform_data.example', 'module.blue.var.name'],
   ]);
   assert.deepEqual(graph.definitions, []);
+  assert.deepEqual(graph.references, []);
+  assert.deepEqual(graph.groups, [
+    {
+      identity: 'service',
+      label: './service',
+      parent: '',
+      calls: ['module.blue', 'module.green'],
+    },
+  ]);
 });
 
 test('links nested calls from their displayed parent definition', () => {

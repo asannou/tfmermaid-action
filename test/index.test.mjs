@@ -149,4 +149,12 @@ test('fully renders one representative and keeps only inputs and outputs in the 
   assert.equal((output.match(/\(\[\"output\.id\"\]\):::v/g) ?? []).length, 2);
   assert.equal((output.match(/\(\[\"var\.name\"\]\):::v/g) ?? []).length, 2);
   assert.doesNotMatch(output, /Module definitions/);
+  assert.match(output, /subgraph \"\w+\"\[\"Module source: \.\/service\"\]/);
+  assert.doesNotMatch(output, /-\.->/);
+  const source = output.match(
+    /subgraph \"(n\w+)\"\[\"Module source: \.\/service\"\]/,
+  )[1];
+  assert.ok(output.includes(
+    `style ${source} fill:none,stroke:#dce0e6,stroke-width:2px`,
+  ));
 });

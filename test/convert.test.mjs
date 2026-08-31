@@ -175,4 +175,6 @@ test('passes initialized module metadata to the representative view', (context) 
   assert.equal((output.match(/\(\[\"output\.id\"\]\):::v/g) ?? []).length, 2);
   assert.equal((output.match(/\(\[\"var\.name\"\]\):::v/g) ?? []).length, 2);
   assert.doesNotMatch(output, /Module definitions/);
+  assert.match(output, /Module source: \.\/service/);
+  assert.doesNotMatch(output, /-\.->/);
 });

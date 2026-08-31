@@ -180,9 +180,26 @@ export function transformModuleGraph(
   );
   if (view == 'representative') {
     const omittedCalls = new Set();
-    for (const identity of repeated) {
-      const calls = Array.from(callsByIdentity.get(identity).keys()).sort();
-      for (const call of calls.slice(1)) omittedCalls.add(call);
+    const groups = [];
+    for (const identity of Array.from(repeated).sort()) {
+      const calls = Array.from(callsByIdentity.get(identity).values()).
+        sort((left, right) => left.address.localeCompare(right.address));
+      for (const call of calls.slice(1)) omittedCalls.add(call.address);
+
+      const callsByParent = new Map();
+      for (const call of calls) {
+        const parent = moduleCalls(call.address).at(-2)?.address ?? '';
+        callsByParent.set(parent, callsByParent.get(parent) ?? []);
+        callsByParent.get(parent).push(call.address);
+      }
+      for (const [parent, groupedCalls] of callsByParent) {
+        groups.push({
+          identity,
+          label: calls[0].label,
+          parent,
+          calls: groupedCalls,
+        });
+      }
     }
     const retained = (address) => {
       const omitted = moduleCalls(address).
@@ -196,6 +213,7 @@ export function transformModuleGraph(
       ...filterGraph(addresses, edges, retained),
       definitions: [],
       references: [],
+      groups,
     };
   }
   const collapsedCall = (address, ancestor = '') => {

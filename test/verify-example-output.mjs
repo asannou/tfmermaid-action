@@ -82,6 +82,16 @@ assert.doesNotMatch(
   /Module definitions/,
   'representative view must keep the representative in place',
 );
+assert.match(
+  blocks.get('module-views/representative'),
+  /Module source: \.\/service/,
+  'representative view must group calls sharing a module source',
+);
+assert.equal(
+  occurrences('module-views/representative', /-\.->/g),
+  0,
+  'representative source groups must not add dependency arrows',
+);
 assert.equal(
   occurrences('module-views/deduplicated', /\["terraform_data\.service"\]:::r/g),
   1,
@@ -91,4 +101,32 @@ assert.match(
   blocks.get('module-views/deduplicated'),
   /Module definitions/,
   'deduplicated view must include module definitions',
+);
+
+const trafficManager =
+  'terraform-provider-azurerm/examples/traffic-manager/vm-scale-set';
+assert.match(
+  blocks.get(trafficManager),
+  /Module source: \.\/modules\/region/,
+  'traffic manager example must group repeated region modules by source',
+);
+assert.equal(
+  occurrences(trafficManager, /\[\"azurerm_lb\.example\"\]:::r/g),
+  1,
+  'traffic manager example must fully render one region module',
+);
+assert.match(
+  blocks.get(trafficManager),
+  /\[\"module\.region1\"\]/,
+  'traffic manager example must include its representative module',
+);
+assert.match(
+  blocks.get(trafficManager),
+  /\[\"module\.region2\"\]/,
+  'traffic manager example must include its abbreviated module',
+);
+assert.doesNotMatch(
+  blocks.get(trafficManager),
+  /Module definitions/,
+  'representative traffic manager example must not use module definitions',
 );

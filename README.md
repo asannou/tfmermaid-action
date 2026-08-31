@@ -43,9 +43,10 @@ The `module-view` input controls how module calls are rendered. `expanded` shows
 every module instance in full and is the default. `compact` represents each
 top-level module call as one node. `representative` fully expands the first
 instance of each repeated module source and keeps only the inputs and outputs
-of the remaining instances. `deduplicated` represents repeated calls as nodes
-and shows the internal structure of each repeatedly used module source only
-once; module sources used once remain expanded.
+of the remaining instances; an outer group identifies instances that share the
+same source. `deduplicated` represents repeated calls as nodes and shows the
+internal structure of each repeatedly used module source only once; module
+sources used once remain expanded.
 
 The examples below call the same `./service` module as `module.blue` and
 `module.green`.
@@ -142,45 +143,50 @@ classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
 classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
 classDef ps fill:none,stroke:none
 classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
-subgraph "n0"["module.blue"]
-subgraph "n0_padding"[" "]
-n1["terraform_data.service"]:::r
-subgraph "n2"["Output Values"]
-n3(["output.id"]):::v
+n0["terraform_data.gateway"]:::r
+subgraph "n1"["Output Values"]
+n2(["output.service_ids"]):::v
 end
-class n2 vs
-subgraph "n4"["Input Variables"]
-n5(["var.name"]):::v
+class n1 vs
+subgraph "n3"["Module source: ./service"]
+direction LR
+subgraph "n4"["module.blue"]
+subgraph "n4_padding"[" "]
+n5["terraform_data.service"]:::r
+subgraph "n6"["Output Values"]
+n7(["output.id"]):::v
 end
-class n4 vs
-end
-class n0_padding ps
-end
-class n0 ms
-n6["terraform_data.gateway"]:::r
-subgraph "n7"["module.green"]
-subgraph "n7_padding"[" "]
-subgraph "n8"["Output Values"]
-n9(["output.id"]):::v
+class n6 vs
+subgraph "n8"["Input Variables"]
+n9(["var.name"]):::v
 end
 class n8 vs
-subgraph "na"["Input Variables"]
-nb(["var.name"]):::v
 end
-class na vs
+class n4_padding ps
 end
-class n7_padding ps
+class n4 ms
+subgraph "na"["module.green"]
+subgraph "na_padding"[" "]
+subgraph "nb"["Output Values"]
+nc(["output.id"]):::v
 end
-class n7 ms
-subgraph "nc"["Output Values"]
-nd(["output.service_ids"]):::v
+class nb vs
+subgraph "nd"["Input Variables"]
+ne(["var.name"]):::v
 end
-class nc vs
-n1-->n3
-n5-->n1
-n6--->nd
-n3-->n6
-n9-->n6
+class nd vs
+end
+class na_padding ps
+end
+class na ms
+end
+class n3 ms
+style n3 fill:none,stroke:#dce0e6,stroke-width:2px
+n5-->n7
+n9-->n5
+n0--->n2
+n7-->n0
+nc-->n0
 ```
 
 ### Deduplicated
@@ -1555,7 +1561,7 @@ n5-->nt
 ```yaml
 - uses: asannou/tfmermaid-action@v1
   with:
-    module-view: deduplicated
+    module-view: representative
 ```
 
 ```mermaid
@@ -1578,78 +1584,91 @@ n4["azurerm_traffic_manager_azure_endpoint.<br/>region2"]:::r
 n5["azurerm_traffic_manager_profile.<br/>example"]:::r
 end
 class n2 cs
-n6["module.region1"]:::v
-n7["module.region2"]:::v
-subgraph "n8"["Input Variables"]
-n9(["var.alt_location"]):::v
-na(["var.location"]):::v
-nb(["var.prefix"]):::v
+subgraph "n6"["Input Variables"]
+n7(["var.alt_location"]):::v
+n8(["var.location"]):::v
+n9(["var.prefix"]):::v
 end
-class n8 vs
-subgraph "nc"["Module definitions"]
+class n6 vs
+subgraph "na"["Module source: ./modules/region"]
 direction LR
-subgraph "nd"["./modules/region"]
-direction LR
-subgraph "ne"["Load Balancer"]
-nf["azurerm_lb.example"]:::r
-ng["azurerm_lb_backend_address_pool.<br/>example"]:::r
-nh["azurerm_lb_probe.example"]:::r
-ni["azurerm_lb_rule.example"]:::r
+subgraph "nb"["module.region1"]
+subgraph "nb_padding"[" "]
+subgraph "nc"["Load Balancer"]
+nd["azurerm_lb.example"]:::r
+ne["azurerm_lb_backend_address_pool.<br/>example"]:::r
+nf["azurerm_lb_probe.example"]:::r
+ng["azurerm_lb_rule.example"]:::r
 end
-class ne cs
-subgraph "nj"["Network"]
-nk["azurerm_public_ip.example"]:::r
-nl["azurerm_subnet.example"]:::r
-nm["azurerm_virtual_network.<br/>example"]:::r
+class nc cs
+subgraph "nh"["Network"]
+ni["azurerm_public_ip.example"]:::r
+nj["azurerm_subnet.example"]:::r
+nk["azurerm_virtual_network.<br/>example"]:::r
 end
-class nj cs
-subgraph "nn"["Base"]
-no["azurerm_resource_group.<br/>example"]:::r
+class nh cs
+subgraph "nl"["Base"]
+nm["azurerm_resource_group.<br/>example"]:::r
+end
+class nl cs
+subgraph "nn"["Compute"]
+no["azurerm_virtual_machine_scale_set.<br/>example"]:::r
 end
 class nn cs
-subgraph "np"["Compute"]
-nq["azurerm_virtual_machine_scale_set.<br/>example"]:::r
+subgraph "np"["Output Values"]
+nq(["output.public_ip_address_id"]):::v
 end
-class np cs
-subgraph "nr"["Output Values"]
-ns(["output.public_ip_address_id"]):::v
+class np vs
+nr(["local.<br/>frontend_ip_configuration_name"]):::v
+subgraph "ns"["Input Variables"]
+nt(["var.location"]):::v
+nu(["var.prefix"]):::v
 end
-class nr vs
-nt(["local.<br/>frontend_ip_configuration_name"]):::v
-subgraph "nu"["Input Variables"]
-nv(["var.location"]):::v
-nw(["var.prefix"]):::v
+class ns vs
 end
-class nu vs
+class nb_padding ps
 end
-class nd ms
-style nd fill:none,stroke:#dce0e6,stroke-width:2px
+class nb ms
+subgraph "nv"["module.region2"]
+subgraph "nv_padding"[" "]
+subgraph "nw"["Output Values"]
+nx(["output.public_ip_address_id"]):::v
 end
-class nc ms
-na--->n1
-nb--->n1
+class nw vs
+subgraph "ny"["Input Variables"]
+nz(["var.location"]):::v
+n10(["var.prefix"]):::v
+end
+class ny vs
+end
+class nv_padding ps
+end
+class nv ms
+end
+class na ms
+style na fill:none,stroke:#dce0e6,stroke-width:2px
+n8--->n1
+n9--->n1
 n5-->n3
-n6-->n3
+nq-->n3
 n5-->n4
-n7-->n4
+nx-->n4
 n1-->n5
-na--->n6
-nb--->n6
-n9--->n7
-nb--->n7
-nk-->nf
-nt-->nf
+ni-->nd
+nr-->nd
+nd-->ne
+nd-->nf
+ne-->ng
 nf-->ng
-nf-->nh
-ng-->ni
-nh-->ni
-no-->nk
-nv--->no
-nw--->no
-nm-->nl
-ng-->nq
-nl-->nq
-no-->nm
-nd-.->n6
-nd-.->n7
+nm-->ni
+nt-->nm
+nu-->nm
+nk-->nj
+ne-->no
+nj-->no
+nm-->nk
+n8--->nt
+n9--->nu
+n7--->nz
+n9--->n10
 ```

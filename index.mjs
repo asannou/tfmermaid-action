@@ -171,7 +171,10 @@ async function parse(input) {
     view,
     manifest,
   );
-  const nodes = createNodes(transformed.addresses);
+  const nodes = groupModuleSources(
+    createNodes(transformed.addresses),
+    transformed.groups ?? [],
+  );
   const definitions = transformed.definitions.map((definition, index) => {
     const prefix = `definition:${index}|`;
     return {
@@ -204,6 +207,40 @@ function createNodes(addresses, prefix = '') {
     parseNode(nodes, splitAddress(address), `${prefix}${address}`);
   }
   return categorizeNodes(nodes);
+}
+
+function groupModuleSources(nodes, groups) {
+  const sorted = groups.toSorted((left, right) =>
+    splitAddress(right.parent).length - splitAddress(left.parent).length);
+  for (const [index, group] of sorted.entries()) {
+    let parent = nodes;
+    const tokens = splitAddress(group.parent);
+    for (let offset = 0; group.parent && offset < tokens.length; offset += 2) {
+      const module = parent[`module.${tokens[offset + 1]}`];
+      if (!module || typeof module != 'object') {
+        parent = undefined;
+        break;
+      }
+      parent = module.nodes;
+    }
+    if (!parent) continue;
+
+    const grouped = {};
+    for (const call of group.calls) {
+      const callTokens = splitAddress(call);
+      const name = `module.${callTokens.at(-1)}`;
+      if (!(name in parent)) continue;
+      grouped[name] = parent[name];
+      delete parent[name];
+    }
+    if (!Object.keys(grouped).length) continue;
+
+    parent[`module_source.${index}`] = {
+      text: `Module source: ${group.label.replaceAll('"', '#quot;')}`,
+      nodes: grouped,
+    };
+  }
+  return nodes;
 }
 
 function parseStatement(line) {
@@ -344,6 +381,7 @@ function serialize(object) {
 function dumpNodes(nodes, prefix, stream) {
   const classNames = {
     module: 'ms',
+    module_source: 'ms',
     input_variables: 'vs',
     output_values: 'vs',
     padding: 'ps',
@@ -355,6 +393,9 @@ function dumpNodes(nodes, prefix, stream) {
     if (typeof node == 'object') {
       const title = mapper.getId(`${prefix}${name}`);
       write(`subgraph "${title}"["${node.text}"]\n`);
+      if (type == 'module_source') {
+        write(`direction ${ORIENTATION || 'LR'}\n`);
+      }
       if (type == 'module') {
         const padding = `${title}_padding`;
         write(`subgraph "${padding}"[" "]\n`);
@@ -367,6 +408,9 @@ function dumpNodes(nodes, prefix, stream) {
       write('end\n');
       const className = classNames[type] ?? classNames[undefined];
       write(`class ${title} ${className}\n`);
+      if (type == 'module_source') {
+        write(`style ${title} fill:none,stroke:#dce0e6,stroke-width:2px\n`);
+      }
     } else {
       write(mapper.getId(node));
       const text = wrapText(name);
