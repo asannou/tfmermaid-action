@@ -37,6 +37,207 @@ The converted output is embedded inside the mermaid code block commented `%%tfme
 ```
 ~~~
 
+## Module views
+
+The `module-view` input controls how module calls are rendered. `expanded` shows
+every module instance in full and is the default. `compact` represents each
+top-level module call as one node. `representative` fully expands the first
+instance of each repeated module source and keeps only the inputs and outputs
+of the remaining instances; an outer group identifies instances that share the
+same source. `deduplicated` represents repeated calls as nodes and shows the
+internal structure of each repeatedly used module source only once; module
+sources used once remain expanded.
+
+The examples below call the same `./service` module as `module.blue` and
+`module.green`.
+
+### Expanded
+
+```mermaid
+%%tfmermaid:module-views/expanded
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+subgraph "n0"["module.blue"]
+subgraph "n0_padding"[" "]
+n1["terraform_data.service"]:::r
+subgraph "n2"["Output Values"]
+n3(["output.id"]):::v
+end
+class n2 vs
+subgraph "n4"["Input Variables"]
+n5(["var.name"]):::v
+end
+class n4 vs
+end
+class n0_padding ps
+end
+class n0 ms
+subgraph "n6"["module.green"]
+subgraph "n6_padding"[" "]
+n7["terraform_data.service"]:::r
+subgraph "n8"["Output Values"]
+n9(["output.id"]):::v
+end
+class n8 vs
+subgraph "na"["Input Variables"]
+nb(["var.name"]):::v
+end
+class na vs
+end
+class n6_padding ps
+end
+class n6 ms
+nc["terraform_data.gateway"]:::r
+subgraph "nd"["Output Values"]
+ne(["output.service_ids"]):::v
+end
+class nd vs
+n1-->n3
+n5-->n1
+n7-->n9
+nb-->n7
+nc--->ne
+n3-->nc
+n9-->nc
+```
+
+### Compact
+
+```mermaid
+%%tfmermaid:module-views/compact
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+n0["module.blue"]:::v
+n1["module.green"]:::v
+n2["terraform_data.gateway"]:::r
+subgraph "n3"["Output Values"]
+n4(["output.service_ids"]):::v
+end
+class n3 vs
+n2--->n4
+n0-->n2
+n1-->n2
+```
+
+### Representative
+
+```mermaid
+%%tfmermaid:module-views/representative
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+n0["terraform_data.gateway"]:::r
+subgraph "n1"["Output Values"]
+n2(["output.service_ids"]):::v
+end
+class n1 vs
+subgraph "n3"["Module source: ./service"]
+direction LR
+subgraph "n3_padding"[" "]
+subgraph "n4"["module.blue"]
+subgraph "n4_padding"[" "]
+n5["terraform_data.service"]:::r
+subgraph "n6"["Output Values"]
+n7(["output.id"]):::v
+end
+class n6 vs
+subgraph "n8"["Input Variables"]
+n9(["var.name"]):::v
+end
+class n8 vs
+end
+class n4_padding ps
+end
+class n4 ms
+subgraph "na"["module.green"]
+subgraph "na_padding"[" "]
+subgraph "nb"["Output Values"]
+nc(["output.id"]):::v
+end
+class nb vs
+subgraph "nd"["Input Variables"]
+ne(["var.name"]):::v
+end
+class nd vs
+end
+class na_padding ps
+end
+class na ms
+end
+class n3_padding ps
+end
+class n3 ms
+style n3 fill:none,stroke:#dce0e6,stroke-width:2px
+n5-->n7
+n9-->n5
+n0--->n2
+n7-->n0
+nc-->n0
+```
+
+### Deduplicated
+
+```mermaid
+%%tfmermaid:module-views/deduplicated
+%%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
+flowchart LR
+classDef r fill:#5c4ee5,stroke:#444,color:#fff
+classDef v fill:#eeedfc,stroke:#eeedfc,color:#5c4ee5
+classDef ms fill:none,stroke:#dce0e6,stroke-width:2px
+classDef vs fill:none,stroke:#dce0e6,stroke-width:4px,stroke-dasharray:10
+classDef ps fill:none,stroke:none
+classDef cs fill:#f7f8fa,stroke:#dce0e6,stroke-width:2px
+n0["module.blue"]:::v
+n1["module.green"]:::v
+n2["terraform_data.gateway"]:::r
+subgraph "n3"["Output Values"]
+n4(["output.service_ids"]):::v
+end
+class n3 vs
+subgraph "n5"["Module definitions"]
+direction LR
+subgraph "n6"["./service"]
+direction LR
+n7["terraform_data.service"]:::r
+subgraph "n8"["Output Values"]
+n9(["output.id"]):::v
+end
+class n8 vs
+subgraph "na"["Input Variables"]
+nb(["var.name"]):::v
+end
+class na vs
+end
+class n6 ms
+style n6 fill:none,stroke:#dce0e6,stroke-width:2px
+end
+class n5 ms
+n2--->n4
+n0-->n2
+n1-->n2
+n7--->n9
+nb--->n7
+n6-.->n0
+n6-.->n1
+```
+
 ## Examples
 
 ### [terraform-provider-aws/examples/two-tier](https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/two-tier)
@@ -1360,6 +1561,12 @@ n5-->nt
 
 ### [terraform-provider-azurerm/examples/traffic-manager/vm-scale-set](https://github.com/hashicorp/terraform-provider-azurerm/tree/main/examples/traffic-manager/vm-scale-set)
 
+```yaml
+- uses: asannou/tfmermaid-action@v1
+  with:
+    module-view: representative
+```
+
 ```mermaid
 %%tfmermaid:terraform-provider-azurerm/examples/traffic-manager/vm-scale-set
 %%{init:{"theme":"default","themeVariables":{"lineColor":"#6f7682","textColor":"#6f7682"}}}%%
@@ -1380,121 +1587,94 @@ n4["azurerm_traffic_manager_azure_endpoint.<br/>region2"]:::r
 n5["azurerm_traffic_manager_profile.<br/>example"]:::r
 end
 class n2 cs
-subgraph "n6"["module.region1"]
-subgraph "n6_padding"[" "]
-subgraph "n7"["Load Balancer"]
-n8["azurerm_lb.example"]:::r
-n9["azurerm_lb_backend_address_pool.<br/>example"]:::r
-na["azurerm_lb_probe.example"]:::r
-nb["azurerm_lb_rule.example"]:::r
+subgraph "n6"["Input Variables"]
+n7(["var.alt_location"]):::v
+n8(["var.location"]):::v
+n9(["var.prefix"]):::v
 end
-class n7 cs
-subgraph "nc"["Network"]
-nd["azurerm_public_ip.example"]:::r
-ne["azurerm_subnet.example"]:::r
-nf["azurerm_virtual_network.<br/>example"]:::r
+class n6 vs
+subgraph "na"["Module source: ./modules/region"]
+direction LR
+subgraph "na_padding"[" "]
+subgraph "nb"["module.region1"]
+subgraph "nb_padding"[" "]
+subgraph "nc"["Load Balancer"]
+nd["azurerm_lb.example"]:::r
+ne["azurerm_lb_backend_address_pool.<br/>example"]:::r
+nf["azurerm_lb_probe.example"]:::r
+ng["azurerm_lb_rule.example"]:::r
 end
 class nc cs
-subgraph "ng"["Base"]
-nh["azurerm_resource_group.<br/>example"]:::r
+subgraph "nh"["Network"]
+ni["azurerm_public_ip.example"]:::r
+nj["azurerm_subnet.example"]:::r
+nk["azurerm_virtual_network.<br/>example"]:::r
 end
-class ng cs
-subgraph "ni"["Compute"]
-nj["azurerm_virtual_machine_scale_set.<br/>example"]:::r
+class nh cs
+subgraph "nl"["Base"]
+nm["azurerm_resource_group.<br/>example"]:::r
 end
-class ni cs
-subgraph "nk"["Output Values"]
-nl(["output.public_ip_address_id"]):::v
+class nl cs
+subgraph "nn"["Compute"]
+no["azurerm_virtual_machine_scale_set.<br/>example"]:::r
 end
-class nk vs
-nm(["local.<br/>frontend_ip_configuration_name"]):::v
-subgraph "nn"["Input Variables"]
-no(["var.location"]):::v
-np(["var.prefix"]):::v
+class nn cs
+subgraph "np"["Output Values"]
+nq(["output.public_ip_address_id"]):::v
 end
-class nn vs
+class np vs
+nr(["local.<br/>frontend_ip_configuration_name"]):::v
+subgraph "ns"["Input Variables"]
+nt(["var.location"]):::v
+nu(["var.prefix"]):::v
 end
-class n6_padding ps
+class ns vs
 end
-class n6 ms
-subgraph "nq"["module.region2"]
-subgraph "nq_padding"[" "]
-subgraph "nr"["Load Balancer"]
-ns["azurerm_lb.example"]:::r
-nt["azurerm_lb_backend_address_pool.<br/>example"]:::r
-nu["azurerm_lb_probe.example"]:::r
-nv["azurerm_lb_rule.example"]:::r
+class nb_padding ps
 end
-class nr cs
-subgraph "nw"["Network"]
-nx["azurerm_public_ip.example"]:::r
-ny["azurerm_subnet.example"]:::r
-nz["azurerm_virtual_network.<br/>example"]:::r
+class nb ms
+subgraph "nv"["module.region2"]
+subgraph "nv_padding"[" "]
+subgraph "nw"["Output Values"]
+nx(["output.public_ip_address_id"]):::v
 end
-class nw cs
-subgraph "n10"["Base"]
-n11["azurerm_resource_group.<br/>example"]:::r
+class nw vs
+subgraph "ny"["Input Variables"]
+nz(["var.location"]):::v
+n10(["var.prefix"]):::v
 end
-class n10 cs
-subgraph "n12"["Compute"]
-n13["azurerm_virtual_machine_scale_set.<br/>example"]:::r
+class ny vs
 end
-class n12 cs
-subgraph "n14"["Output Values"]
-n15(["output.public_ip_address_id"]):::v
+class nv_padding ps
 end
-class n14 vs
-n16(["local.<br/>frontend_ip_configuration_name"]):::v
-subgraph "n17"["Input Variables"]
-n18(["var.location"]):::v
-n19(["var.prefix"]):::v
+class nv ms
 end
-class n17 vs
+class na_padding ps
 end
-class nq_padding ps
-end
-class nq ms
-subgraph "n1a"["Input Variables"]
-n1b(["var.alt_location"]):::v
-n1c(["var.location"]):::v
-n1d(["var.prefix"]):::v
-end
-class n1a vs
-n1c--->n1
-n1d--->n1
+class na ms
+style na fill:none,stroke:#dce0e6,stroke-width:2px
+n8--->n1
+n9--->n1
 n5-->n3
-nl-->n3
+nq-->n3
 n5-->n4
-n15-->n4
+nx-->n4
 n1-->n5
-nd-->n8
-nm-->n8
-n8-->n9
-n8-->na
-n9-->nb
-na-->nb
-nh-->nd
-no-->nh
-np-->nh
-nf-->ne
-n9-->nj
-ne-->nj
-nh-->nf
-n1c--->no
-n1d--->np
-nx-->ns
-n16-->ns
-ns-->nt
-ns-->nu
-nt-->nv
-nu-->nv
-n11-->nx
-n18-->n11
-n19-->n11
-nz-->ny
-nt-->n13
-ny-->n13
-n11-->nz
-n1b--->n18
-n1d--->n19
+ni-->nd
+nr-->nd
+nd-->ne
+nd-->nf
+ne-->ng
+nf-->ng
+nm-->ni
+nt-->nm
+nu-->nm
+nk-->nj
+ne-->no
+nj-->no
+nm-->nk
+n8--->nt
+n9--->nu
+n7--->nz
+n9--->n10
 ```

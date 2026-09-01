@@ -119,3 +119,62 @@ resource "terraform_data" "example" {
   assert.equal(result.status, 0, result.stderr);
   assert.match(fs.readFileSync(readme, 'utf8'), /\["terraform_data\.example"\]:::r/);
 });
+
+test('passes initialized module metadata to the deduplicated view', (context) => {
+  if (spawnSync('terraform', ['version']).status !== 0) {
+    context.skip('Terraform is not installed');
+    return;
+  }
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tfmermaid-'));
+  const readme = path.join(directory, 'README.md');
+  fs.writeFileSync(readme, '```mermaid\n%%tfmermaid\n```\n');
+
+  const result = spawnSync(path.resolve('convert.sh'), [readme, ''], {
+    cwd: path.resolve('examples/module-views'),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      INCLUDE: '',
+      EXCLUDE: '',
+      MODULE_VIEW: 'deduplicated',
+    },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const output = fs.readFileSync(readme, 'utf8');
+  assert.match(output, /Module definitions/);
+  assert.equal((output.match(/\["terraform_data\.service"\]:::r/g) ?? []).length, 1);
+  assert.equal((output.match(/-\.->/g) ?? []).length, 2);
+});
+
+test('passes initialized module metadata to the representative view', (context) => {
+  if (spawnSync('terraform', ['version']).status !== 0) {
+    context.skip('Terraform is not installed');
+    return;
+  }
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tfmermaid-'));
+  const readme = path.join(directory, 'README.md');
+  fs.writeFileSync(readme, '```mermaid\n%%tfmermaid\n```\n');
+
+  const result = spawnSync(path.resolve('convert.sh'), [readme, ''], {
+    cwd: path.resolve('examples/module-views'),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      INCLUDE: '',
+      EXCLUDE: '',
+      MODULE_VIEW: 'representative',
+    },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const output = fs.readFileSync(readme, 'utf8');
+  assert.equal((output.match(/\[\"terraform_data\.service\"\]:::r/g) ?? []).length, 1);
+  assert.equal((output.match(/\(\[\"output\.id\"\]\):::v/g) ?? []).length, 2);
+  assert.equal((output.match(/\(\[\"var\.name\"\]\):::v/g) ?? []).length, 2);
+  assert.doesNotMatch(output, /Module definitions/);
+  assert.match(output, /Module source: \.\/service/);
+  assert.doesNotMatch(output, /-\.->/);
+});

@@ -4,8 +4,21 @@ import { argv, env, stdin, stdout } from 'process';
 import { PassThrough } from 'stream';
 import fs from 'fs';
 import readline from 'readline/promises';
+import {
+  loadModuleManifest,
+  splitAddress,
+  transformModuleGraph,
+} from './module-view.mjs';
 
-const { ORIENTATION, ARROW_DIRECTION, ARROW_LENGTH, EXCLUDE, INCLUDE } = env;
+const {
+  ORIENTATION,
+  ARROW_DIRECTION,
+  ARROW_LENGTH,
+  EXCLUDE,
+  INCLUDE,
+  MODULE_VIEW,
+  TF_MODULES_FILE,
+} = env;
 
 class TerraformRegistry {
 
@@ -111,7 +124,7 @@ const registry = new TerraformRegistry();
 const mapper = new NodeMapper();
 
 async function parse(input) {
-  const nodes = {};
+  const addresses = new Set();
   const edges = [];
   const included_default = ['var', 'local', 'output', 'data'];
   const included = [
@@ -121,31 +134,113 @@ async function parse(input) {
   const excluded = (EXCLUDE ?? '').split(',');
   const types = included.filter((type) => !excluded.includes(type));
   const orphan = !excluded.includes('_orphan');
-  const re = new RegExp(
-    '^(module\\.[^. ]+\\.)*' +
-    '(' + types.join('|') + '|[0-9a-z-]+_.+)\\.'
-  );
-  const func = (node) => parseNode(nodes, node.split('.'), node);
+  const matchesType = (node) => {
+    const tokens = splitAddress(node);
+    let index = 0;
+    while (tokens[index] == 'module' && tokens[index + 1]) index += 2;
+    const type = tokens[index];
+    return Boolean(
+      tokens[index + 1] &&
+      (types.includes(type) || type?.match(/^[0-9a-z-]+_.+/)),
+    );
+  };
+  const func = (node) => addresses.add(node);
   const rl = readline.createInterface({ input, crlfDelay: Infinity });
   for await (const line of rl) {
     const [src, arrow, dst] = parseStatement(await parseProvider(line));
     const srcNode = normalizeNode(src);
-    if (srcNode && srcNode.match(re)) {
+    if (srcNode && matchesType(srcNode)) {
       if (orphan) func(srcNode);
       if (arrow == '->') {
         if (!orphan) func(srcNode);
         const dstNode = normalizeNode(dst);
-        if (dstNode?.match(re)) {
+        if (dstNode && matchesType(dstNode)) {
           func(dstNode);
           edges.push([srcNode, dstNode]);
         }
       }
     }
   }
-  return {
-    nodes: categorizeNodes(nodes),
+  const view = MODULE_VIEW || 'expanded';
+  const manifest = ['deduplicated', 'representative'].includes(view) ?
+    loadModuleManifest(TF_MODULES_FILE) :
+    new Map();
+  const transformed = transformModuleGraph(
+    Array.from(addresses),
     edges,
+    view,
+    manifest,
+  );
+  const nodes = groupModuleSources(
+    createNodes(transformed.addresses),
+    transformed.groups ?? [],
+  );
+  const definitions = transformed.definitions.map((definition, index) => {
+    const prefix = `definition:${index}|`;
+    return {
+      ...definition,
+      id: `definition:${index}`,
+      nodes: createNodes(definition.addresses, prefix),
+      edges: definition.edges.map(
+        (edge) => edge.map((address) => `${prefix}${address}`),
+      ),
+      references: definition.references.map((reference) => ({
+        ...reference,
+        address: `${prefix}${reference.address}`,
+      })),
+    };
+  });
+  return {
+    nodes,
+    edges: transformed.edges,
+    definitions,
+    references: [
+      ...transformed.references,
+      ...definitions.flatMap((definition) => definition.references),
+    ],
   };
+}
+
+function createNodes(addresses, prefix = '') {
+  const nodes = {};
+  for (const address of addresses) {
+    parseNode(nodes, splitAddress(address), `${prefix}${address}`);
+  }
+  return categorizeNodes(nodes);
+}
+
+function groupModuleSources(nodes, groups) {
+  const sorted = groups.toSorted((left, right) =>
+    splitAddress(right.parent).length - splitAddress(left.parent).length);
+  for (const [index, group] of sorted.entries()) {
+    let parent = nodes;
+    const tokens = splitAddress(group.parent);
+    for (let offset = 0; group.parent && offset < tokens.length; offset += 2) {
+      const module = parent[`module.${tokens[offset + 1]}`];
+      if (!module || typeof module != 'object') {
+        parent = undefined;
+        break;
+      }
+      parent = module.nodes;
+    }
+    if (!parent) continue;
+
+    const grouped = {};
+    for (const call of group.calls) {
+      const callTokens = splitAddress(call);
+      const name = `module.${callTokens.at(-1)}`;
+      if (!(name in parent)) continue;
+      grouped[name] = parent[name];
+      delete parent[name];
+    }
+    if (!Object.keys(grouped).length) continue;
+
+    parent[`module_source.${index}`] = {
+      text: `Module source: ${group.label.replaceAll('"', '#quot;')}`,
+      nodes: grouped,
+    };
+  }
+  return nodes;
 }
 
 function parseStatement(line) {
@@ -188,6 +283,8 @@ function parseNode(nodes, addrs, addr) {
     if (addrs.length) {
       nodes[name] ??= {};
       parseNode(nodes[name], addrs, addr);
+    } else {
+      nodes[name] = addr;
     }
   } else {
     nodes[[name, ...addrs].join('.')] = addr;
@@ -216,10 +313,13 @@ function categorizeNodes(nodes) {
   return categorized;
 }
 
-function dump(comment, { nodes, edges }, stream) {
+function dump(comment, { nodes, edges, definitions, references }, stream) {
   dumpStatements(comment, stream);
   dumpNodes(nodes, '', stream);
+  dumpDefinitions(definitions, stream);
   dumpEdges(edges, stream);
+  for (const definition of definitions) dumpEdges(definition.edges, stream);
+  dumpDefinitionReferences(definitions, references, stream);
 }
 
 function dumpStatements(comment, stream) {
@@ -281,6 +381,7 @@ function serialize(object) {
 function dumpNodes(nodes, prefix, stream) {
   const classNames = {
     module: 'ms',
+    module_source: 'ms',
     input_variables: 'vs',
     output_values: 'vs',
     padding: 'ps',
@@ -292,7 +393,10 @@ function dumpNodes(nodes, prefix, stream) {
     if (typeof node == 'object') {
       const title = mapper.getId(`${prefix}${name}`);
       write(`subgraph "${title}"["${node.text}"]\n`);
-      if (type == 'module') {
+      if (type == 'module_source') {
+        write(`direction ${ORIENTATION || 'LR'}\n`);
+      }
+      if (type == 'module' || type == 'module_source') {
         const padding = `${title}_padding`;
         write(`subgraph "${padding}"[" "]\n`);
         dumpNodes(node.nodes, `${title}.`, stream);
@@ -304,10 +408,16 @@ function dumpNodes(nodes, prefix, stream) {
       write('end\n');
       const className = classNames[type] ?? classNames[undefined];
       write(`class ${title} ${className}\n`);
+      if (type == 'module_source') {
+        write(`style ${title} fill:none,stroke:#dce0e6,stroke-width:2px\n`);
+      }
     } else {
       write(mapper.getId(node));
       const text = wrapText(name);
       switch (type) {
+        case 'module':
+          write(`["${text}"]:::v\n`);
+          break;
         case 'var':
         case 'local':
         case 'output':
@@ -322,6 +432,38 @@ function dumpNodes(nodes, prefix, stream) {
         default:
           write(`["${text}"]:::r\n`);
       }
+    }
+  }
+}
+
+function dumpDefinitions(definitions, stream) {
+  if (!definitions.length) return;
+  const root = mapper.getId('module-definitions');
+  stream.write(`subgraph "${root}"["Module definitions"]\n`);
+  stream.write(`direction ${ORIENTATION || 'LR'}\n`);
+  for (const definition of definitions) {
+    const title = mapper.getId(definition.id);
+    const label = definition.label.replaceAll('"', '#quot;');
+    stream.write(`subgraph "${title}"["${label}"]\n`);
+    stream.write(`direction ${ORIENTATION || 'LR'}\n`);
+    dumpNodes(definition.nodes, `${title}.`, stream);
+    stream.write('end\n');
+    stream.write(`class ${title} ms\n`);
+    stream.write(`style ${title} fill:none,stroke:#dce0e6,stroke-width:2px\n`);
+  }
+  stream.write('end\n');
+  stream.write(`class ${root} ms\n`);
+}
+
+function dumpDefinitionReferences(definitions, references, stream) {
+  const targets = new Map(
+    definitions.map((definition) => [definition.identity, definition.id]),
+  );
+  for (const reference of references) {
+    const target = targets.get(reference.identity);
+    if (target) {
+      const edge = arrangeEdge([reference.address, target]);
+      stream.write(`${edge.map((address) => mapper.getId(address)).join('-.->')}\n`);
     }
   }
 }
@@ -346,17 +488,22 @@ function unparseProvider(name) {
 }
 
 function dumpEdges(edges, stream) {
-  const arrange = ARROW_DIRECTION == 'reverse' ?
-    ([src, dst]) => [dst, src] :
-    (edge) => edge;
   const getId = mapper.getId.bind(mapper);
+  const logicalAddress = (address) => address.split('|').at(-1);
   const arrow = ([src, dst]) =>
-    src.startsWith('output.') || dst.startsWith('var.') ?
+    logicalAddress(src).startsWith('output.') ||
+      logicalAddress(dst).startsWith('var.') ?
       `${'-'.repeat(ARROW_LENGTH || 2)}->` :
       '-->';
   for (const edge of edges) {
-    stream.write(arrange(edge).map(getId).join(arrow(edge)) + '\n');
+    stream.write(arrangeEdge(edge).map(getId).join(arrow(edge)) + '\n');
   }
+}
+
+function arrangeEdge([source, destination]) {
+  return ARROW_DIRECTION == 'reverse' ?
+    [destination, source] :
+    [source, destination];
 }
 
 async function embed(fileName, comment, graph, stream) {
