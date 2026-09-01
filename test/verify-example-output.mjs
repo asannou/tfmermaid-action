@@ -87,6 +87,11 @@ assert.match(
   /Module source: \.\/service/,
   'representative view must group calls sharing a module source',
 );
+assert.match(
+  blocks.get('module-views/representative'),
+  /subgraph \"n\w+_padding\"\[\" \"\][\s\S]*class n\w+_padding ps/,
+  'representative module source group must include padding',
+);
 assert.equal(
   occurrences('module-views/representative', /-\.->/g),
   0,

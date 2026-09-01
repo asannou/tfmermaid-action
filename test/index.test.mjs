@@ -154,6 +154,8 @@ test('fully renders one representative and keeps only inputs and outputs in the 
   const source = output.match(
     /subgraph \"(n\w+)\"\[\"Module source: \.\/service\"\]/,
   )[1];
+  assert.ok(output.includes(`subgraph \"${source}_padding\"[\" \"]`));
+  assert.ok(output.includes(`class ${source}_padding ps`));
   assert.ok(output.includes(
     `style ${source} fill:none,stroke:#dce0e6,stroke-width:2px`,
   ));

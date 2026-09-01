@@ -396,7 +396,7 @@ function dumpNodes(nodes, prefix, stream) {
       if (type == 'module_source') {
         write(`direction ${ORIENTATION || 'LR'}\n`);
       }
-      if (type == 'module') {
+      if (type == 'module' || type == 'module_source') {
         const padding = `${title}_padding`;
         write(`subgraph "${padding}"[" "]\n`);
         dumpNodes(node.nodes, `${title}.`, stream);

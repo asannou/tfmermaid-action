@@ -150,6 +150,7 @@ end
 class n1 vs
 subgraph "n3"["Module source: ./service"]
 direction LR
+subgraph "n3_padding"[" "]
 subgraph "n4"["module.blue"]
 subgraph "n4_padding"[" "]
 n5["terraform_data.service"]:::r
@@ -179,6 +180,8 @@ end
 class na_padding ps
 end
 class na ms
+end
+class n3_padding ps
 end
 class n3 ms
 style n3 fill:none,stroke:#dce0e6,stroke-width:2px
@@ -1592,6 +1595,7 @@ end
 class n6 vs
 subgraph "na"["Module source: ./modules/region"]
 direction LR
+subgraph "na_padding"[" "]
 subgraph "nb"["module.region1"]
 subgraph "nb_padding"[" "]
 subgraph "nc"["Load Balancer"]
@@ -1644,6 +1648,8 @@ end
 class nv_padding ps
 end
 class nv ms
+end
+class na_padding ps
 end
 class na ms
 style na fill:none,stroke:#dce0e6,stroke-width:2px
